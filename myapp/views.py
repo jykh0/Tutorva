@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect, get_object_or_404
 from .models import User, Student, Tutor, Admin
+from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse
 from django.contrib import messages
@@ -152,31 +153,72 @@ def adminhome(request):
 
 
 def adminstudents(request):
-    students = Student.objects.select_related('uid').all()
-    if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        action = request.POST.get('action')
-        user = get_object_or_404(User, id=student_id)
-        if action == 'activate':
-            user.is_active = True
-        elif action == 'deactivate':
-            user.is_active = False
-        user.save()
-        return JsonResponse({'success': True, 'new_status': user.is_active})
-    return render(request, 'admin/admin_students.html', {'students': students})
+    try:
+        students = Student.objects.select_related('uid').all()
+        search_query = request.GET.get('search', '')
+        if search_query:
+            students = students.filter(
+                Q(fullname__icontains=search_query) |
+                Q(uid__email__icontains=search_query) |
+                Q(phone__icontains=search_query)
+            ).distinct()
+        if request.method == 'POST':
+            student_id = request.POST.get('student_id')
+            action = request.POST.get('action')
+            user = get_object_or_404(User, id=student_id)
+            user.is_active = action == 'activate'
+            user.save()
+            return JsonResponse({'success': True, 'new_status': user.is_active})
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            students_list = []
+            for student in students:
+                students_list.append({
+                    'uid': {
+                        'id': student.uid.id,
+                        'email': student.uid.email
+                    },
+                    'fullname': student.fullname,
+                    'gender': student.gender,
+                    'phone': student.phone,
+                    'street': student.street,
+                    'city': student.city,
+                    'state': student.state,
+                    'is_active': student.uid.is_active,
+                })
+            return JsonResponse({'students': students_list})
+        return render(request, 'admin/admin_students.html', {'students': students})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
 
 def admintutors(request):
-    tutors = Tutor.objects.select_related('uid').all()
+    search_query = request.GET.get('search', '')
+    if search_query:
+        tutors = Tutor.objects.select_related('uid').filter(
+            Q(fullname__icontains=search_query) |
+            Q(uid__email__icontains=search_query) |
+            Q(phone__icontains=search_query)
+        ).distinct()
+    else:
+        tutors = Tutor.objects.select_related('uid').all()
     if request.method == 'POST':
         tutor_id = request.POST.get('tutor_id')
         action = request.POST.get('action')
         user = get_object_or_404(User, id=tutor_id)
-        if action == 'activate':
-            user.is_active = True
-        elif action == 'deactivate':
-            user.is_active = False
+        user.is_active = (action == 'activate')
         user.save()
         return JsonResponse({'success': True, 'new_status': user.is_active})
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        tutors_list = []
+        for tutor in tutors:
+            tutors_list.append({
+                'fullname': tutor.fullname, 'email': tutor.uid.email, 'phone': tutor.phone, 'qualifications': tutor.qualifications,
+                'street': tutor.street, 'city': tutor.city, 'state': tutor.state, 'is_active': tutor.uid.is_active,
+                'uid': {
+                    'id': tutor.uid.id,
+                }
+            })
+        return JsonResponse({'tutors': tutors_list})
     return render(request, 'admin/admin_tutor.html', {'tutors': tutors})
 
 def forgotpassword(request):
