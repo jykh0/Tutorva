@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'login page/style.css' %}">
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px; /* Large icon */
+            color: #333; /* Adjust color as needed */
+            text-decoration: none;
+            z-index: 10; /* Ensure it's on top of other content */
+        }
+        .back-button i {
+            margin-right: 8px; /* Space between icon and text */
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button outside the container -->
+    <a href="/land/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <div class="container">
+        <div class="cover">
+            <div class="front">
+                <img src="{% static 'login page/images/frontImg.jpg' %}" alt="">
+                <div class="text">
+                    <span class="text-1">Every new friend is a <br> new adventure</span>
+                    <span class="text-2">Let's get connected</span>
+                </div>
+            </div>
+            <div class="back">
+                <img class="backImg" src="{% static 'login page/images/backImg.jpg' %}" alt="">
+                <div class="text">
+                    <span class="text-1">Complete miles of journey <br> with one step</span>
+                    <span class="text-2">Let's get started</span>
+                </div>
+            </div>
+        </div>
+        <div class="forms">
+            <div class="form-content">
+                <!-- Student Registration Form -->
+                <div class="login-form">
+                    <div class="title">Student Register</div>
+
+                    <form method="POST" id="registration-form" onsubmit="return validateForm()">
+                        {% csrf_token %}
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+                                <span id="fullname-error" class="error-message"></span>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-venus-mars"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <label>
+                                    <input type="radio" name="gender" value="Male" checked required> Male
+                                </label>
+                                <label>
+                                    <input type="radio" name="gender" value="Female" required> Female
+                                </label>
+                                <label>
+                                    <input type="radio" name="gender" value="Other" required> Other
+                                </label>
+                                <div class="error" id="gender-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                                <span id="phone-error" class="error-message"></span>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-graduation-cap"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="level" required>
+                                    <option value="" disabled selected>Select your educational level</option>
+                                    <option value="High School">High School</option>
+                                    <option value="Higher Secondary">Higher Secondary</option>
+                                </select>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-book"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="subject" required>
+                                    <option value="" disabled selected>Select your preferred subject</option>
+                                    <option value="Maths">Maths</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="English">English</option>
+                                </select>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-road"></i>
+                                <input type="text" id="street" name="street" placeholder="Enter your street" required>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-city"></i>
+                                <input type="text" id="city" name="city" placeholder="Enter your city" required>
+                            </div>
+                            <!-- Hidden input for state -->
+                            <input type="hidden" name="state" value="Kerala">
+                            <div class="input-box">
+                                <i class="fas fa-map-pin"></i>
+                                <input type="text" id="pincode" name="pincode" placeholder="Enter your pincode" required>
+                                <span id="pincode-error" class="error-message"></span>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-location-arrow"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="location_type" required>
+                                    <option value="" disabled selected>Select location type</option>
+                                    <option value="Home Tuition">Home Tuition</option>
+                                    <option value="Tuition Centre">Tuition Centre</option>
+                                </select>
+                            </div>
+                            <div class="button input-box">
+                                <input type="submit" value="Register">
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- JavaScript for Live Validation -->
+                    <script>
+                        // Validate full name live
+                        function validateFullName() {
+                            const fullNameInput = document.getElementById('fullname');
+                            const fullNameError = document.getElementById('fullname-error');
+                            const fullName = fullNameInput.value.trim();
+
+                            if (fullName === '' || fullName.length < 3) {
+                                fullNameError.textContent = "Full name must be at least 3 characters.";
+                            } else {
+                                fullNameError.textContent = ""; // Clear error if valid
+                            }
+                        }
+
+                        // Validate phone number live
+                        function validatePhone() {
+                            const phoneInput = document.getElementById('phone');
+                            const phoneError = document.getElementById('phone-error');
+                            const phone = phoneInput.value;
+                            const phoneRegex = /^[6-9]\d{9}$/;
+
+                            if (!phoneRegex.test(phone) || phone === '0000000000') {
+                                phoneError.textContent = "Enter a valid 10-digit phone number.";
+                            } else {
+                                phoneError.textContent = ""; // Clear error if valid
+                            }
+                        }
+
+                        // Validate pincode live
+                        function validatePincode() {
+                            const pincodeInput = document.getElementById('pincode');
+                            const pincodeError = document.getElementById('pincode-error');
+                            const pincode = pincodeInput.value;
+                            const pincodeRegex = /^\d{6}$/;
+
+                            if (!pincodeRegex.test(pincode)) {
+                                pincodeError.textContent = "Enter a valid 6-digit pincode.";
+                            } else {
+                                pincodeError.textContent = ""; // Clear error if valid
+                            }
+                        }
+
+                        // Attach event listeners for live validation
+                        document.getElementById('fullname').addEventListener('input', validateFullName);
+                        document.getElementById('phone').addEventListener('input', validatePhone);
+                        document.getElementById('pincode').addEventListener('input', validatePincode);
+
+                        // Final form validation before submission
+                        function validateForm() {
+                            validateFullName();
+                            validatePhone();
+                            validatePincode();
+
+                            const fullNameError = document.getElementById('fullname-error').textContent;
+                            const phoneError = document.getElementById('phone-error').textContent;
+                            const pincodeError = document.getElementById('pincode-error').textContent;
+
+                            // Check if any errors exist
+                            if (fullNameError === '' && phoneError === '' && pincodeError === '') {
+                                return true; // No errors, submit form
+                            } else {
+                                return false; // Errors exist, do not submit form
+                            }
+                        }
+                    </script>
+
+                    <style>
+                        .error-message {
+                            color: red;
+                            font-size: 0.9em;
+                            margin-top: 4px;
+                            display: block;
+                        }
+                    </style>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

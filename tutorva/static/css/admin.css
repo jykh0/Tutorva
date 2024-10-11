@@ -1,0 +1,190 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+h1, h2 {
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.logo h1 {
+    color: #f6c04c;
+    font-size: 28px;
+    letter-spacing: 2px;
+    animation: logoFadeIn 1s ease;
+}
+
+@keyframes logoFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Navigation Links */
+.nav-links ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links ul li {
+    margin-right: 20px;
+    position: relative;
+}
+
+.nav-links ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 16px;
+    padding: 10px 20px;
+    background-color: #7d2ae8;
+    border-radius: 5px;
+    transition: all 0.4s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-links ul li a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f6c04c;
+    border-radius: 5px;
+    z-index: -1;
+    transform: scale(0);
+    transition: transform 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.nav-links ul li a:hover::before {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.nav-links ul li a:hover {
+    color: #333;
+    background-color: transparent;
+    font-weight: bold;
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px);
+    text-align: center;
+    background-image: linear-gradient(135deg, #7d2ae8 0%, #f6c04c 100%);
+    animation: backgroundGradient 10s ease infinite;
+}
+
+@keyframes backgroundGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.main-content h2 {
+    font-size: 36px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 1.5s ease;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation on hover for navigation items */
+.nav-links ul li a:hover {
+    transform: scale(1.1);
+    background-color: #f6c04c;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover animation for the navbar */
+.navbar:hover {
+    background-color: #444;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+.nav-links ul li a:hover {
+    background-color: #25AD75;
+    transition: all 0.4s ease;
+}
+
+.nav-links ul li a::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: width 0.4s ease, height 0.4s ease, top 0.4s ease, left 0.4s ease;
+    z-index: -1;
+}
+
+.nav-links ul li a:hover::after {
+    width: 200%;
+    height: 500%;
+    top: -100%;
+    left: -50%;
+}
+
+/* Smooth hover effect */
+.nav-links ul li a:hover {
+    color: #333;
+    background-color: #f6c04c;
+}
+
+/* Logo hover effect */
+.logo:hover h1 {
+    color: #25AD75;
+    transform: rotate(-5deg);
+    transition: all 0.3s ease-in-out;
+}
+
+.logo h1:hover {
+    text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.logo:hover h1 {
+    transform: scale(1.2) rotate(360deg);
+    transition: transform 0.6s ease-in-out;
+}

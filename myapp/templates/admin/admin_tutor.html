@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'css/adminst.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutors - Admin Dashboard</title>
+
+<!----------------------------- style ------------------------------>
+    <style>
+        /* Button Styles */
+        .btn-activate {
+            background-color: green;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-deactivate {
+            background-color: red;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Hover Effects */
+        .btn-activate:hover {
+            background-color: darkgreen;
+        }
+
+        .btn-deactivate:hover {
+            background-color: darkred;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pagination .step-links a {
+            color: #7d2ae8;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #7d2ae8;
+            border-radius: 3px;
+            margin: 0 2px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pagination .step-links a:hover {
+            background-color: #7d2ae8;
+            color: white;
+        }
+
+        .pagination .current {
+            font-weight: bold;
+            padding: 5px 10px;
+            margin: 0 2px;
+        }
+
+        /* Pagination Arrow Button Styles */
+        .arrow {
+            color: #7d2ae8;
+            font-weight: bold;
+            padding: 5px 10px;
+            margin: 0 2px;
+            border-radius: 3px;
+            border: 1px solid #7d2ae8;
+        }
+
+        .arrow:hover {
+            background-color: #7d2ae8;
+            color: white;
+        }
+    </style>
+<!----------------------------- style end ------------------------------>
+
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <h1>Tutorva</h1>
+        </div>
+        <nav class="nav-links">
+            <ul>
+                <li><a href="{% url 'adminhome' %}">Home</a></li>
+                <li><a href="{% url 'adminstudents' %}">Students</a></li>
+                <li><a href="{% url 'admintutors' %}">Tutors</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Tutors List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Qualifications</th>
+                    <th>Street</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Action</th> <!-- Added Action column for activate/deactivate buttons -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for tutor in tutors %}
+                <tr>
+                    <td>{{ tutor.fullname }}</td>
+                    <td>{{ tutor.uid.email }}</td> <!-- Accessing email from the User model -->
+                    <td>{{ tutor.phone }}</td>
+                    <td>{{ tutor.qualifications }}</td>
+                    <td>{{ tutor.street }}</td>
+                    <td>{{ tutor.city }}</td>
+                    <td>{{ tutor.state }}</td>
+                    <td>
+                        <form class="status-form" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tutor_id" value="{{ tutor.uid.id }}">
+                            <button type="button"
+                                    class="status-button
+                                    {% if tutor.uid.is_active %}btn-deactivate{% else %}btn-activate{% endif %}"
+                                    data-id="{{ tutor.uid.id }}"
+                                    data-status="{{ tutor.uid.is_active|yesno:"active,inactive" }}">
+                                {% if tutor.uid.is_active %}
+                                    Deactivate
+                                {% else %}
+                                    Activate
+                                {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Pagination controls -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if tutors.has_previous %}
+                    <a href="?page=1" class="arrow">« First</a>
+                    <a href="?page={{ tutors.previous_page_number }}" class="arrow">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ tutors.number }} of {{ tutors.paginator.num_pages }}.
+                </span>
+
+                {% if tutors.has_next %}
+                    <a href="?page={{ tutors.next_page_number }}" class="arrow">Next</a>
+                    <a href="?page={{ tutors.paginator.num_pages }}" class="arrow">Last »</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.status-button').click(function() {
+            var button = $(this);
+            var tutorId = button.data('id');
+            var currentStatus = button.data('status');
+
+            // Determine the action based on the current status
+            var action = currentStatus === 'active' ? 'deactivate' : 'activate';
+
+            $.ajax({
+                url: "{% url 'admintutors' %}",  // Adjust URL as needed
+                method: "POST",
+                data: {
+                    'tutor_id': tutorId,
+                    'action': action,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}' // Send the CSRF token
+                },
+                success: function(response) {
+                    // Update the button text, data-status attribute, and classes
+                    if (action === 'activate') {
+                        button.text('Deactivate');
+                        button.data('status', 'active');
+                        button.removeClass('btn-activate').addClass('btn-deactivate'); // Change to deactivate class
+                    } else {
+                        button.text('Activate');
+                        button.data('status', 'inactive');
+                        button.removeClass('btn-deactivate').addClass('btn-activate'); // Change to activate class
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert("An error occurred: " + xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
+

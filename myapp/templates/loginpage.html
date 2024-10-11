@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'login page/style.css' %}">
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            color: #333;
+            text-decoration: none;
+            z-index: 10;
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Back Button outside the container -->
+    <a href="/land/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+
+    <div class="container">
+
+        <!-- Cover Image Section -->
+        <div class="cover">
+            <div class="front">
+                <img src="{% static 'login page/images/frontImg.jpg' %}" alt="Cover Image">
+                <div class="text">
+                    <span class="text-1">Every new friend is a <br> new adventure</span>
+                    <span class="text-2">Let's get connected</span>
+                </div>
+            </div>
+            <div class="back">
+                <img class="backImg" src="{% static 'login page/images/backImg.jpg' %}" alt="Cover Image">
+                <div class="text">
+                    <span class="text-1">Complete miles of journey <br> with one step</span>
+                    <span class="text-2">Let's get started</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms Section -->
+        <div class="forms">
+            <div class="form-content">
+                <div class="login-form">
+                    <div class="title">Login</div>
+                    <form method="POST" id="login-form">
+                        {% csrf_token %}
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-envelope"></i>
+                                <input type="text" id="email" name="email" value="{{ email_value|default:'' }}" placeholder="Enter your email" required>
+                                <div id="email-error" class="error-message">{{ email_error }}</div> <!-- Email error message -->
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                                <div id="password-error" class="error-message">{{ password_error }}</div> <!-- Password error message -->
+                            </div>
+                            <div class="error-message">{{ status_error }}</div> <!-- Status error message for inactive users -->
+                            <div class="text"><a href="{% url 'forgotpassword' %}">Forgot password?</a></div>
+                            <div class="button input-box">
+                                <input type="submit" value="Login">
+                            </div>
+                            <div class="text sign-up-text">Don't have an account? <a href="/srt/">Signup now</a></div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            const emailError = document.getElementById('email-error');
+            const passwordError = document.getElementById('password-error');
+
+            // Clear previous error messages
+            emailError.textContent = '';
+            passwordError.textContent = '';
+
+            // We let the backend handle error setting, so no need for JS checks in this scenario
+        });
+    </script>
+
+</body>
+</html>
+
+

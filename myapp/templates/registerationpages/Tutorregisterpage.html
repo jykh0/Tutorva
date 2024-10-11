@@ -1,0 +1,297 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'login page/style.css' %}">
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px; /* Large icon */
+            color: #333; /* Adjust color as needed */
+            text-decoration: none;
+            z-index: 10; /* Ensure it's on top of other content */
+        }
+        .back-button i {
+            margin-right: 8px; /* Space between icon and text */
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button outside the container -->
+    <a href="/land/" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+    <div class="container">
+        <div class="cover">
+            <div class="front">
+                <img src="{% static 'login page/images/frontImg.jpg' %}" alt="">
+                <div class="text">
+                    <span class="text-1">Every new friend is a <br> new adventure</span>
+                    <span class="text-2">Let's get connected</span>
+                </div>
+            </div>
+            <div class="back">
+                <img class="backImg" src="{% static 'login page/images/backImg.jpg' %}" alt="">
+                <div class="text">
+                    <span class="text-1">Complete miles of journey <br> with one step</span>
+                    <span class="text-2">Let's get started</span>
+                </div>
+            </div>
+        </div>
+        <div class="forms">
+            <div class="form-content">
+                <!-- Tutor Register Form -->
+                <div class="login-form">
+                    <div class="title">Tutor Register</div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="fullname" id="fullname" placeholder="Enter your full name" required>
+                                <div class="error" id="fullname-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-venus-mars"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <label><input type="radio" name="gender" value="male" checked> Male</label>
+                                <label><input type="radio" name="gender" value="female"> Female</label>
+                                <label><input type="radio" name="gender" value="other"> Other</label>
+                                <div class="error" id="gender-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" name="phone" id="phone" placeholder="Enter your phone number" required>
+                                <div class="error" id="phone-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-graduation-cap"></i>
+                                <input type="text" name="qualifications" id="qualifications" placeholder="Enter your qualifications" required>
+                                <div class="error" id="qualifications-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-book"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="subject" id="subject" required>
+                                    <option value="" disabled selected>Select your preferred subject</option>
+                                    <option value="Maths">Maths</option>
+                                    <option value="Physics">Physics</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Biology">Biology</option>
+                                    <option value="English">English</option>
+                                </select>
+                                <div class="error" id="subject-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-graduation-cap"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="level" id="level" required>
+                                    <option value="" disabled selected>Select educational level</option>
+                                    <option value="high school">High School</option>
+                                    <option value="secondary">Higher Secondary</option>
+                                </select>
+                                <div class="error" id="level-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-road"></i>
+                                <input type="text" name="street" id="street" placeholder="Enter your street" required>
+                                <div class="error" id="street-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-city"></i>
+                                <input type="text" name="city" id="city" placeholder="Enter your city" required>
+                                <div class="error" id="city-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" name="state" id="state" placeholder="Enter your state" required>
+                                <div class="error" id="state-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-map-pin"></i>
+                                <input type="text" name="pincode" id="pincode" placeholder="Enter your pincode" required>
+                                <div class="error" id="pincode-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-clock"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="availability" id="availability" required>
+                                    <option value="" disabled selected>Select availability</option>
+                                    <option value="offline">Offline</option>
+                                    <option value="online">Online</option>
+                                    <option value="both">Both</option>
+                                </select>
+                                <div class="error" id="availability-error"></div>
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-location-arrow"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <select name="location-type" id="location-type" required>
+                                    <option value="" disabled selected>Select location type</option>
+                                    <option value="home tuition">Home Tuition</option>
+                                    <option value="tutor location">Tutor Location</option>
+                                </select>
+                                <div class="error" id="location-type-error"></div>
+                            </div>
+                            <div class="button input-box">
+                                <input type="submit" value="Register">
+                            </div>
+                        </div>
+                    </form>
+
+<script>
+    const form = document.querySelector('form');
+    const fullnameInput = document.getElementById('fullname');
+    const genderInputs = document.querySelectorAll('input[name="gender"]');
+    const qualificationsInput = document.getElementById('qualifications');
+    const subjectSelect = document.getElementById('subject');
+    const levelSelect = document.getElementById('level');
+    const streetInput = document.getElementById('street');
+    const cityInput = document.getElementById('city');
+    const stateInput = document.getElementById('state');
+    const pincodeInput = document.getElementById('pincode');
+    const phoneInput = document.getElementById('phone');
+    const availabilitySelect = document.getElementById('availability');
+    const locationTypeSelect = document.getElementById('location-type');
+
+    // Live validation functions
+    function validateFullname() {
+        const fullname = fullnameInput.value.trim();
+        if (fullname.length < 3 || /[^a-zA-Z\s]/.test(fullname)) {
+            document.getElementById('fullname-error').textContent = 'Full name must be at least 3 characters long and contain no special characters.';
+            return false;
+        } else {
+            document.getElementById('fullname-error').textContent = '';
+            return true;
+        }
+    }
+
+    function validateGender() {
+        const genderSelected = Array.from(genderInputs).some(input => input.checked);
+        document.getElementById('gender-error').textContent = genderSelected ? '' : 'Gender is required.';
+        return genderSelected;
+    }
+
+    function validateQualifications() {
+        const qualifications = qualificationsInput.value.trim();
+        document.getElementById('qualifications-error').textContent = qualifications ? '' : 'Qualifications are required.';
+        return qualifications !== '';
+    }
+
+    function validateSubject() {
+        const subject = subjectSelect.value;
+        document.getElementById('subject-error').textContent = subject ? '' : 'Subject is required.';
+        return subject !== '';
+    }
+
+    function validateLevel() {
+        const level = levelSelect.value;
+        document.getElementById('level-error').textContent = level ? '' : 'Level is required.';
+        return level !== '';
+    }
+
+    function validateStreet() {
+        const street = streetInput.value.trim();
+        document.getElementById('street-error').textContent = street ? '' : 'Street is required.';
+        return street !== '';
+    }
+
+    function validateCity() {
+        const city = cityInput.value.trim();
+        document.getElementById('city-error').textContent = city ? '' : 'City is required.';
+        return city !== '';
+    }
+
+    function validateState() {
+        const state = stateInput.value.trim();
+        document.getElementById('state-error').textContent = state ? '' : 'State is required.';
+        return state !== '';
+    }
+
+    function validatePincode() {
+        const pincode = pincodeInput.value.trim();
+        const pincodeRegex = /^[1-9][0-9]{5}$/;
+        document.getElementById('pincode-error').textContent = pincodeRegex.test(pincode) ? '' : 'Please enter valid 6-digit Pincode.';
+        return pincodeRegex.test(pincode);
+    }
+
+    function validatePhone() {
+        const phone = phoneInput.value.trim();
+        const phoneRegex = /^[6-9][0-9]{9}$/;
+        document.getElementById('phone-error').textContent = phoneRegex.test(phone) ? '' : 'Please enter valid 10 digits long phone number.';
+        return phoneRegex.test(phone);
+    }
+
+    function validateAvailability() {
+        const availability = availabilitySelect.value;
+        document.getElementById('availability-error').textContent = availability ? '' : 'Availability is required.';
+        return availability !== '';
+    }
+
+    function validateLocationType() {
+        const locationType = locationTypeSelect.value;
+        document.getElementById('location-type-error').textContent = locationType ? '' : 'Location type is required.';
+        return locationType !== '';
+    }
+
+    // Event listeners for live validation
+    fullnameInput.addEventListener('input', validateFullname);
+    qualificationsInput.addEventListener('input', validateQualifications);
+    streetInput.addEventListener('input', validateStreet);
+    cityInput.addEventListener('input', validateCity);
+    stateInput.addEventListener('input', validateState);
+    pincodeInput.addEventListener('input', validatePincode);
+    phoneInput.addEventListener('input', validatePhone);
+    availabilitySelect.addEventListener('change', validateAvailability);
+    locationTypeSelect.addEventListener('change', validateLocationType);
+
+    genderInputs.forEach(input => {
+        input.addEventListener('change', validateGender);
+    });
+
+    subjectSelect.addEventListener('change', validateSubject);
+    levelSelect.addEventListener('change', validateLevel);
+
+    // Submit event
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Validate all fields
+        const isValidFullname = validateFullname();
+        const isValidGender = validateGender();
+        const isValidQualifications = validateQualifications();
+        const isValidSubject = validateSubject();
+        const isValidLevel = validateLevel();
+        const isValidStreet = validateStreet();
+        const isValidCity = validateCity();
+        const isValidState = validateState();
+        const isValidPincode = validatePincode();
+        const isValidPhone = validatePhone();
+        const isValidAvailability = validateAvailability();
+        const isValidLocationType = validateLocationType();
+
+        // Check if all validations passed
+        if (isValidFullname && isValidGender && isValidQualifications && isValidSubject &&
+            isValidLevel && isValidStreet && isValidCity && isValidState &&
+            isValidPincode && isValidPhone && isValidAvailability && isValidLocationType) {
+            event.target.submit(); // Submit the form if no errors
+        }
+    });
+</script>
+
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
