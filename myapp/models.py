@@ -56,4 +56,19 @@ class Admin(models.Model):
         return self.email
 
 
+class Enquiry(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='enquiries')
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='responses')
+    message = models.TextField("Enquiry Message")
+    response = models.TextField("Tutor Response", blank=True, null=True)
+    status = models.CharField("Status", max_length=20, choices=[
+        ('pending', 'Pending'),
+        ('answered', 'Answered'),
+    ], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    tutor_x = models.BooleanField(default=False)
+    student_x = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Enquiry from {self.student.fullname} to {self.tutor.fullname}"

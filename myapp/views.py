@@ -1,12 +1,14 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import User, Student, Tutor, Admin
+from .models import User, Student, Tutor, Admin, Enquiry
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+
 from . import views
 
 def landingpage(request):
@@ -52,7 +54,7 @@ def log(request):
         if user.user_type == 'student':
             return redirect('studenthome')
         elif user.user_type == 'tutor':
-            return redirect('tutor_home')
+            return redirect('tutorhome')
     return render(request, 'loginpage.html')
 
 
@@ -280,9 +282,6 @@ def resetpassword(request, token):
         return redirect('loginpage')
     return render(request, 'resetpassword.html', {'token': token})
 
-def studenthome_tutors(request):
-    return render(request, "studenthome_tutors.html")
-
 
 def studenteditprofile(request):
     user_id = request.session.get('user_id')
@@ -354,4 +353,63 @@ def tutoreditprofile(request):
         return redirect('tutoreditprofile')
     context = {'tutor': tutor}
     return render(request, "tutor/tutor_editprofile.html", context)
+
+def submit_enquiry(request):
+    if request.method == "POST":
+        student = get_object_or_404(Student, uid=request.session.get('user_id'))
+        tutor_id = request.POST.get('tutor_id')
+        message = request.POST.get('message')
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+        Enquiry.objects.create(student=student, tutor=tutor, message=message)
+        messages.success(request, "Your enquiry has been sent to the tutor.")
+        return redirect('studenthome')
+    return redirect('studenthome')
+
+
+def tutornotifications(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('log')
+    tutor = Tutor.objects.filter(uid__id=user_id).first()
+    if not tutor:
+        return redirect('log')
+    if request.method == 'POST':
+        enquiry_id = request.POST.get('enquiry_id')
+        try:
+            enquiry = Enquiry.objects.get(id=enquiry_id)
+            enquiry.tutor_x = True
+            enquiry.save()
+            return JsonResponse({'success': True})
+        except Enquiry.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
+    enquiries = Enquiry.objects.filter(tutor=tutor, tutor_x=False)
+    return render(request, 'tutor/tutor_notifications.html', {'enquiries': enquiries})
+
+def reply_enquiry(request):
+    if request.method == 'POST':
+        enquiry_id = request.POST.get('enquiry_id')
+        response = request.POST.get('response')
+        Enquiry.objects.filter(id=enquiry_id).update(response=response, status='answered')
+        return redirect('tutornotifications')
+
+
+def studentnotifications(request):
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'student':
+        return redirect('log')
+    student = get_object_or_404(Student, uid=user_id)
+    if request.method == 'POST':
+        enquiry_id = request.POST.get('enquiry_id')
+        try:
+            enquiry = Enquiry.objects.get(id=enquiry_id)
+            enquiry.student_x = True
+            enquiry.save()
+            return JsonResponse({'success': True})
+        except Enquiry.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
+    enquiries = Enquiry.objects.filter(student=student, status='answered', student_x=False)
+    context = {'enquiries': enquiries}
+    return render(request, 'student/student_notifications.html', context)
+
 

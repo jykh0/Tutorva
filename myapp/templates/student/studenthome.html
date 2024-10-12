@@ -41,7 +41,7 @@
   }
   .suggested_tutors_section {
   padding: 50px 0;
-  background-color: #7235b7; /* White background for the section */
+  background-color: #7235b7;
   }
 
   .rounded-input {
@@ -120,7 +120,7 @@
                 <a class="nav-link" href="#">Tutor</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Notifications</a>
+                <a class="nav-link" href="{% url 'studentnotifications' %}">Notifications</a>
               </li>
             </ul>
             <div class="quote_btn-container dropdown">
@@ -167,7 +167,8 @@
           <h5 class="tutor-name">{{ tutor.fullname }}</h5>
           <p class="tutor-subject">{{ tutor.subjects_offered }}</p>
           <div class="button-container">
-            <a href="#" class="btn btn-enquiry">Enquiry</a>
+            <!-- Enquiry Button with Modal Trigger -->
+            <button type="button" class="btn btn-enquiry" data-tutor-id="{{ tutor.id }}" onclick="openEnquiryModal({{ tutor.id }}, '{{ tutor.fullname }}')">Enquiry</button>
             <a href="#" class="btn btn-book">Book Now</a>
           </div>
         </div>
@@ -177,6 +178,34 @@
   </div>
 </section>
 
+
+<!-- Enquiry Modal -->
+<div class="modal fade" id="enquiryModal" tabindex="-1" role="dialog" aria-labelledby="enquiryModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="enquiryModalLabel">Send Enquiry to <span id="tutorName"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="enquiryForm" method="POST" action="{% url 'submit_enquiry' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <input type="hidden" name="tutor_id" id="tutorId">
+          <div class="form-group">
+            <label for="enquiryMessage">Message</label>
+            <textarea class="form-control" name="message" id="enquiryMessage" rows="3" style="border-radius: 10px; border: 2px solid #7235b7;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-orange" style="background-color: orange;">Send</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 
 
@@ -419,6 +448,17 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
   <!-- End Google Map -->
 <script>
+  // Open the modal and fill in the tutor details
+  function openEnquiryModal(tutorId, tutorName) {
+    // Set tutor details in the modal
+    document.getElementById('tutorId').value = tutorId;
+    document.getElementById('tutorName').textContent = tutorName;
+
+    // Show the modal
+    $('#enquiryModal').modal('show');
+  }
+
+  // Filter tutors based on search input
   function filterTutors() {
     const input = document.getElementById('searchInput').value.toLowerCase();
     const tutorCards = document.querySelectorAll('.tutor-card');
@@ -426,7 +466,7 @@
     tutorCards.forEach(card => {
       const name = card.querySelector('.tutor-name').textContent.toLowerCase();
       const subject = card.querySelector('.tutor-subject').textContent.toLowerCase();
-      const city = card.getAttribute('data-city').toLowerCase();  // Ensure each card has data attributes for city/state
+      const city = card.getAttribute('data-city').toLowerCase();
       const state = card.getAttribute('data-state').toLowerCase();
 
       // Check if the input matches any of the tutor's information
@@ -443,6 +483,7 @@
     });
   }
 </script>
+
 
 
 

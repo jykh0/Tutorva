@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/responsive.css' %}" rel="stylesheet" />
+<style>
+  /* CSS for dropdown on hover */
+  .quote_btn-container:hover .dropdown-menu {
+    display: block; /* Show the dropdown on hover */
+  }
+
+  .dropdown-menu {
+    display: none; /* Hide by default */
+    position: absolute; /* Position the dropdown */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background-color: white; /* Optional: background color for the dropdown */
+    border: 1px solid #ddd; /* Optional: border for the dropdown */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+
+  .dropdown-item {
+    display: block; /* Make dropdown items block-level */
+    padding: 10px 15px; /* Padding for dropdown items */
+    color: #333; /* Color for dropdown items */
+    text-decoration: none; /* Remove underline from links */
+  }
+
+  .dropdown-item:hover {
+    background-color: #f1f1f1; /* Change background on hover */
+  }
+
+  .enquiries_section {
+  padding: 50px 0;
+  }
+
+  .enquiries_section .heading_container {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .enquiries-list {
+    max-width: 100%;
+  }
+
+  .enquiry-row {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .enquiry-row h5 {
+    font-weight: bold;
+  }
+
+  .enquiry-row p {
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .btn-reply, .btn-view-profile, .btn-clear {
+    padding: 10px 20px;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-clear {
+    background-color: #ff4d4d; /* Red for clear button */
+  }
+  .btn-orange {
+    background-color: orange;
+    color: white;
+    border-radius: 20px;
+    padding: 10px 20px;
+    text-decoration: none;
+    margin-right: 10px; /* Space between buttons */
+  }
+
+  .enquiries_section {
+      background-color: #7235b7;
+      padding: 50px 0;
+  }
+
+  .enquiry-row {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+
+</style>
+</head>
+
+<body>
+  <div class="hero_area">
+
+    <!-- header section starts -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="index.html">
+            <span>
+              Tutorva
+            </span>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'studenthome' %}">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Tutor</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'studentnotifications' %}">Notifications</a>
+              </li>
+            </ul>
+            <div class="quote_btn-container dropdown">
+              <a href="#" class="quote_btn dropdown-toggle" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                Profile
+              </a>
+              <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="{% url 'studenteditprofile' %}">Edit Profile</a>
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+
+    <!-- Greeting Section -->
+    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
+      <h1 style="color: white; font-weight: bold; font-size: 48px;">Notifications</h1>
+    </section>
+
+<!-- Enquiries Section -->
+<div class="enquiries_section" style="background-color: #7235b7; padding: 50px 0;">
+    <div class="container">
+        <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: white;">Enquiries</h2>
+        </div>
+        <div class="enquiries-list">
+            {% if enquiries.exists %}
+                {% for enquiry in enquiries %}
+                    <div class="enquiry-row" id="enquiry-{{ enquiry.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+                        <h5 style="font-size: 20px; font-weight: bold;">From Tutor: {{ enquiry.tutor.fullname }}</h5>
+                        <p style="color: #666; font-size: 16px;"><strong>{{ enquiry.response }}</strong></p>
+                        <div class="button-container" style="text-align: right;">
+                            <a href="#" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
+                            <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteNotification({{ enquiry.id }})">X</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: white;">No enquiries available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+
+  </div>
+
+<script>
+function deleteNotification(enquiryId) {
+    const enquiryRow = document.getElementById('enquiry-' + enquiryId);
+    if (enquiryRow) {
+        enquiryRow.style.transition = 'opacity 1s ease-out'; // Set the transition for the fade-out effect
+        enquiryRow.style.opacity = '0'; // Start fading out
+        setTimeout(() => {
+            enquiryRow.style.display = 'none'; // Hide the element after the fade-out animation
+
+            // Update student_x in the database via a POST request
+            updateStudentX(enquiryId);
+        }, 1000); // Wait for 1 second (1000 ms) before hiding
+    }
+}
+
+// Function to update student_x in the database
+function updateStudentX(enquiryId) {
+    fetch(window.location.href, { // Use the current URL for the request
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+        },
+        body: new URLSearchParams({
+            'enquiry_id': enquiryId // Send the enquiry ID
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Failed to update student_x');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Helper function to get CSRF token (if using Django's CSRF protection)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+
+
+
+
+  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <script src="{% static 'home/js/bootstrap.js' %}"></script>
+  <script src="{% static 'home/js/custom.js' %}"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+</body>
+
+</html>
