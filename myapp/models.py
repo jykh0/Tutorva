@@ -23,6 +23,8 @@ class Student(models.Model):
     state = models.CharField("State", max_length=50)
     pincode = models.CharField("Pincode", max_length=10)
     location_type = models.CharField("Location Type", max_length=20, choices=(('home tuition', 'Home Tuition'), ('tutor location', 'Tutor Location')))
+    profile_picture = models.ImageField(
+        upload_to='profile_pics/students/', default='profile_pics/default_profile.jpg', null=True, blank=True)
 
     def __str__(self):
         return self.fullname
@@ -41,6 +43,7 @@ class Tutor(models.Model):
     pincode = models.CharField("Pincode", max_length=10)
     availability = models.CharField("Availability", max_length=20, choices=(('offline', 'Offline'), ('online', 'Online'), ('both', 'Both')))
     location_type = models.CharField("Location Type", max_length=20, choices=(('home tuition', 'Home Tuition'), ('tutor location', 'Tutor Location')))
+    profile_picture = models.ImageField(upload_to='profile_pics/tutors/', default='profile_pics/default_profile.jpg', null=True, blank=True)
 
     def __str__(self):
         return self.fullname

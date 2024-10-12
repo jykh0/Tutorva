@@ -12,6 +12,10 @@ from . import views
 def landingpage(request):
     return render(request, "landingpage.html")
 
+def logout(request):
+    request.session.flush()
+    print("Logout triggered")
+    return redirect('landingpage')
 
 def log(request):
     if request.method == 'POST':
@@ -19,6 +23,8 @@ def log(request):
         password = request.POST.get('password')
         admin = Admin.objects.filter(email=email).first()
         if admin and admin.password == password:
+            request.session['user_id'] = admin.id
+            request.session['user_type'] = 'admin'
             return redirect('adminhome')
         user = User.objects.filter(email=email).first()
         email_error = None
@@ -41,11 +47,14 @@ def log(request):
             context['status_error'] = status_error
         if email_error or password_error or status_error:
             return render(request, 'loginpage.html', context)
+        request.session['user_id'] = user.id
+        request.session['user_type'] = user.user_type
         if user.user_type == 'student':
             return redirect('studenthome')
         elif user.user_type == 'tutor':
             return redirect('tutor_home')
     return render(request, 'loginpage.html')
+
 
 
 def stortu(request):
@@ -130,23 +139,18 @@ def tutorreg(request):
 
 def studenthomepage(request):
     user_id = request.session.get('user_id')
-    if not user_id:
-        return redirect('loginpage')
-    student = Student.objects.filter(uid__id=user_id).first()
-    if student:
-        return render(request, "student_home.html", {"fullname": student.fullname})
-    else:
-        return redirect('loginpage')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'student':
+        return redirect('log')
+    user = get_object_or_404(User, id=user_id)
+    student = get_object_or_404(Student, uid=user_id)
+    context = { 'user': user, 'student_fullname': student.fullname, }
+    return render(request, "student/studenthome.html", context)
+
 
 def tutorhome(request):
-    user_id = request.session.get('user_id')
-    if not user_id:
-        return redirect('loginpage')
-    tutor = Tutor.objects.filter(uid__id=user_id).first()
-    if tutor:
-        return render(request, "tutor_home.html", {"fullname": tutor.fullname})
-    else:
-        return redirect('loginpage')
+    return render(request, "tutor/tutorhome.html")
+
 
 def adminhome(request):
     return render(request, "admin/admin_homepage.html")
@@ -265,3 +269,76 @@ def resetpassword(request, token):
 
 def studenthome_tutors(request):
     return render(request, "studenthome_tutors.html")
+
+
+def studenteditprofile(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('log')
+    student = get_object_or_404(Student, uid=user_id)
+    if request.method == 'POST':
+        fullname = request.POST.get('fullname')
+        phone = request.POST.get('phone')
+        level = request.POST.get('level')
+        subject = request.POST.get('subject')
+        street = request.POST.get('street')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        location_type = request.POST.get('location_type')
+        profile_picture = request.FILES.get('profile_picture')
+        student.fullname = fullname
+        student.phone = phone
+        student.level = level
+        student.subject = subject
+        student.street = street
+        student.city = city
+        student.state = state
+        student.pincode = pincode
+        student.location_type = location_type
+        if profile_picture:
+            student.profile_picture = profile_picture
+        student.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('studenteditprofile')
+    context = {'student': student}
+    return render(request, "student/student_editprofile.html", context)
+
+
+def tutoreditprofile(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('log')
+    tutor = get_object_or_404(Tutor, uid=user_id)
+    if request.method == 'POST':
+        fullname = request.POST.get('fullname')
+        phone = request.POST.get('phone')
+        qualifications = request.POST.get('qualifications')
+        subjects_offered = request.POST.get('subjects_offered')
+        level = request.POST.get('level')
+        street = request.POST.get('street')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        pincode = request.POST.get('pincode')
+        availability = request.POST.get('availability')
+        location_type = request.POST.get('location_type')
+        profile_picture = request.FILES.get('profile_picture')
+        tutor.fullname = fullname
+        tutor.phone = phone
+        tutor.qualifications = qualifications
+        tutor.subjects_offered = subjects_offered
+        tutor.level = level
+        tutor.street = street
+        tutor.city = city
+        tutor.state = state
+        tutor.pincode = pincode
+        tutor.availability = availability
+        tutor.location_type = location_type
+        if profile_picture:
+            tutor.profile_picture = profile_picture
+        tutor.save()
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('tutoreditprofile')
+    context = {'tutor': tutor}
+    return render(request, "tutor/tutor_editprofile.html", context)
+

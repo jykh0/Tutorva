@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('', views.landingpage, name='landingpage'),
+    path('logout/', views.logout, name='logout'),
     path('land/', views.landingpage, name='landingpage'),
     path('log/', views.log, name='loginpage'),
     path('srt/', views.stortu, name='studentortutor'),
@@ -16,4 +17,7 @@ urlpatterns = [
     path('forgotpas/', views.forgotpassword, name='forgotpassword'),
     path('resetpassword/<str:token>/', views.resetpassword, name='resetpassword'),
     path('sthometutors/', views.studenthome_tutors, name='studenthome_tutors'),
+
+    path('stedpro/', views.studenteditprofile, name='studenteditprofile'),
+    path('tuedpro/', views.tutoreditprofile, name='tutoreditprofile'),
 ]

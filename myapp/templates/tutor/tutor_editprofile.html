@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Tutor Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/responsive.css' %}" rel="stylesheet" />
+<style>
+  /* CSS for dropdown on hover */
+  .quote_btn-container:hover .dropdown-menu {
+    display: block; /* Show the dropdown on hover */
+  }
+
+  .dropdown-menu {
+    display: none; /* Hide by default */
+    position: absolute; /* Position the dropdown */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background-color: white; /* Optional: background color for the dropdown */
+    border: 1px solid #ddd; /* Optional: border for the dropdown */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+
+  .dropdown-item {
+    display: block; /* Make dropdown items block-level */
+    padding: 10px 15px; /* Padding for dropdown items */
+    color: #333; /* Color for dropdown items */
+    text-decoration: none; /* Remove underline from links */
+  }
+
+  .dropdown-item:hover {
+    background-color: #f1f1f1; /* Change background on hover */
+  }
+
+
+    /* Profile Edit Section Styles */
+  .profile_edit_section {
+    background-color: #7235b7; /* Updated background color */
+    padding: 50px 0;
+    text-align: center;
+  }
+
+  .form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+  }
+
+  .profile-pic-container {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+    border: 5px solid white;
+  }
+
+  .edit-icon-container {
+    position: absolute;
+    bottom: 0;
+    right: 20px;
+  }
+
+  .edit-icon {
+    color: white;
+    background-color: orange;
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .pic-options {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 50px;
+    right: 0;
+  }
+
+  .upload-pic-input {
+    display: none;
+  }
+
+  .upload-pic-btn, .remove-pic-btn {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    margin: 5px 0;
+    cursor: pointer;
+  }
+
+  .upload-pic-btn:hover, .remove-pic-btn:hover {
+    background-color: darkorange;
+  }
+
+  /* Form Styles */
+  .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .form-group label {
+    color: #7235b7; /* Updated label color */
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .btn-orange {
+    background-color: orange;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-orange:hover {
+    background-color: darkorange;
+  }
+
+  .pic-options {
+    display: none; /* Initially hide the options */
+    position: absolute; /* Positioning if needed */
+    background-color: white; /* Background color for visibility */
+    border: 1px solid #ccc; /* Optional border */
+    z-index: 1000; /* Ensure it's on top */
+  }
+    .error-message {
+    color: red; /* Error message color */
+    font-size: 0.875em; /* Smaller font size */
+    margin-top: 5px; /* Space above error message */
+  }
+
+</style>
+</head>
+
+<body>
+  <div class="hero_area">
+
+    <!-- header section starts -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="index.html">
+            <span>
+              Tutorva
+            </span>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="{% url 'studenthome' %}">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Students</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Notifications</a>
+              </li>
+            </ul>
+            <div class="quote_btn-container dropdown">
+              <a href="#" class="quote_btn dropdown-toggle" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                Profile
+              </a>
+              <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="{% url 'tutoreditprofile' %}">Edit Profile</a>
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+
+        <!-- Greeting Section -->
+    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
+      <h1 style="color: white; font-weight: bold; font-size: 48px;">
+        Edit your profile here!
+      </h1>
+    </section>
+
+
+
+<!-- Profile Edit Section -->
+<section class="profile_edit_section">
+  <div class="container">
+    <div class="form-container">
+      <!-- Profile Edit Form -->
+      <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <!-- Profile Picture Section -->
+        <div class="profile-pic-container">
+          <img id="profilePic" src="{{ tutor.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+          <div class="edit-icon-container">
+            <i class="fa fa-pencil edit-icon" onclick="showOptions()"></i>
+            <div id="picOptions" class="pic-options" style="display: none;">
+              <button type="button" class="remove-pic-btn" onclick="removeProfilePic()">Remove</button>
+              <input type="file" accept=".jpeg, .jpg" id="uploadPicInput" name="profile_picture" class="upload-pic-input" onchange="uploadProfilePic()">
+              <label for="uploadPicInput" class="upload-pic-btn">Upload</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname" name="fullname" value="{{ tutor.fullname }}" class="form-control" required>
+          <div id="fullnameError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="text" id="phone" name="phone" value="{{ tutor.phone }}" class="form-control" required>
+          <div id="phoneError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="qualifications">Qualifications</label>
+          <input type="text" id="qualifications" name="qualifications" value="{{ tutor.qualifications }}" class="form-control" required>
+          <div id="qualificationsError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="subjects_offered">Subjects Offered</label>
+          <input type="text" id="subjects_offered" name="subjects_offered" value="{{ tutor.subjects_offered }}" class="form-control" required>
+          <div id="subjectsError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="level">Level</label>
+          <select id="level" name="level" class="form-control" required>
+            <option value="high school" {% if tutor.level == 'high school' %}selected{% endif %}>High School</option>
+            <option value="secondary" {% if tutor.level == 'secondary' %}selected{% endif %}>Secondary</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="street">Street</label>
+          <input type="text" id="street" name="street" value="{{ tutor.street }}" class="form-control" required>
+          <div id="streetError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="city">City</label>
+          <input type="text" id="city" name="city" value="{{ tutor.city }}" class="form-control" required>
+          <div id="cityError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="state">State</label>
+          <input type="text" id="state" name="state" value="{{ tutor.state }}" class="form-control" required>
+          <div id="stateError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="pincode">Pincode</label>
+          <input type="text" id="pincode" name="pincode" value="{{ tutor.pincode }}" class="form-control" required>
+          <div id="pincodeError" class="error-message"></div>
+        </div>
+        <div class="form-group">
+          <label for="availability">Availability</label>
+          <select id="availability" name="availability" class="form-control" required>
+            <option value="offline" {% if tutor.availability == 'offline' %}selected{% endif %}>Offline</option>
+            <option value="online" {% if tutor.availability == 'online' %}selected{% endif %}>Online</option>
+            <option value="both" {% if tutor.availability == 'both' %}selected{% endif %}>Both</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="location_type">Location Type</label>
+          <select id="location_type" name="location_type" class="form-control" required>
+            <option value="home tuition" {% if tutor.location_type == 'home tuition' %}selected{% endif %}>Home Tuition</option>
+            <option value="tutor location" {% if tutor.location_type == 'tutor location' %}selected{% endif %}>Tutor Location</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group">
+          <button type="submit" class="btn btn-orange">Update Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+  </div><!--this div is imp for purple color bg--->
+
+
+
+
+  <!-- jQery -->
+  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+  <!-- popper js -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+  </script>
+  <!-- bootstrap js -->
+  <script src="{% static 'home/js/bootstrap.js' %}"></script>
+  <script src="{% static 'home/js/custom.js' %}"></script>
+  <!-- Google Map -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+  <!-- End Google Map -->
+<script>
+  function showOptions() {
+      const picOptions = document.getElementById("picOptions");
+      picOptions.style.display = picOptions.style.display === "none" || picOptions.style.display === "" ? "block" : "none";
+  }
+
+  function removeProfilePic() {
+      document.getElementById("profilePic").src = ""; // Set to empty or a placeholder
+      document.getElementById("uploadPicInput").value = ""; // Clear the file input
+  }
+
+  function uploadProfilePic() {
+      const input = document.getElementById("uploadPicInput");
+      const file = input.files[0];
+
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+              document.getElementById("profilePic").src = e.target.result; // Show the uploaded image
+          };
+          reader.readAsDataURL(file);
+      }
+  }
+
+  function validateFullName() {
+      const fullname = document.getElementById("fullname");
+      const error = document.getElementById("fullnameError");
+      const regex = /^[A-Z][a-zA-Z\s]{3,}$/; // Starts with uppercase and min 3 characters
+
+      if (!regex.test(fullname.value.trim())) {
+          error.textContent = "Enter a valid Full Name";
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validatePhone() {
+      const phone = document.getElementById("phone");
+      const error = document.getElementById("phoneError");
+      const regex = /^[0-9]{10}$/; // 10 digits only
+
+      if (!regex.test(phone.value.trim())) {
+          error.textContent = "Enter a valid Phone Number (10 digits)";
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validateStreetCityState(inputId, errorId) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      const regex = /^(?![\d\s])[A-Za-z0-9\s]+$/; // Not starting with a digit or whitespace
+
+      if (!regex.test(input.value.trim())) {
+          error.textContent = "Enter a valid input for " + inputId.charAt(0).toUpperCase() + inputId.slice(1);
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validatePincode() {
+      const pincode = document.getElementById("pincode");
+      const error = document.getElementById("pincodeError");
+      const regex = /^[0-9]{6}$/; // 6 digits only
+
+      if (!regex.test(pincode.value.trim())) {
+          error.textContent = "Enter a valid Pincode (6 digits)";
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validateQualifications() {
+      const qualifications = document.getElementById("qualifications");
+      const error = document.getElementById("qualificationsError");
+
+      if (qualifications.value.trim() === "") {
+          error.textContent = "Qualifications cannot be empty";
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validateSubjects() {
+      const subjects = document.getElementById("subjects_offered");
+      const error = document.getElementById("subjectsError");
+
+      if (subjects.value.trim() === "") {
+          error.textContent = "Subjects Offered cannot be empty";
+          return false;
+      } else {
+          error.textContent = "";
+          return true;
+      }
+  }
+
+  function validateForm() {
+      const isFullNameValid = validateFullName();
+      const isPhoneValid = validatePhone();
+      const isQualificationsValid = validateQualifications();
+      const isSubjectsValid = validateSubjects();
+      const isStreetValid = validateStreetCityState("street", "streetError");
+      const isCityValid = validateStreetCityState("city", "cityError");
+      const isStateValid = validateStreetCityState("state", "stateError");
+      const isPincodeValid = validatePincode();
+
+      return isFullNameValid && isPhoneValid && isQualificationsValid && isSubjectsValid && isStreetValid && isCityValid && isStateValid && isPincodeValid;
+  }
+
+  // Add event listeners for live validation
+  document.getElementById("fullname").addEventListener("input", validateFullName);
+  document.getElementById("phone").addEventListener("input", validatePhone);
+  document.getElementById("qualifications").addEventListener("input", validateQualifications);
+  document.getElementById("subjects_offered").addEventListener("input", validateSubjects);
+  document.getElementById("street").addEventListener("input", () => validateStreetCityState("street", "streetError"));
+  document.getElementById("city").addEventListener("input", () => validateStreetCityState("city", "cityError"));
+  document.getElementById("state").addEventListener("input", () => validateStreetCityState("state", "stateError"));
+  document.getElementById("pincode").addEventListener("input", validatePincode);
+</script>
+</body>
+
+</html>
