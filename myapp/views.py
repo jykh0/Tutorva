@@ -144,12 +144,25 @@ def studenthomepage(request):
         return redirect('log')
     user = get_object_or_404(User, id=user_id)
     student = get_object_or_404(Student, uid=user_id)
-    context = { 'user': user, 'student_fullname': student.fullname, }
+    tutors = Tutor.objects.filter(subjects_offered__icontains=student.subject)
+    if not tutors.exists():
+        tutors = Tutor.objects.filter(city=student.city)
+    if not tutors.exists():
+        tutors = Tutor.objects.filter(state=student.state)
+    tutors = tutors.distinct()[:9]
+    context = { 'user': user, 'student_fullname': student.fullname, 'tutors': tutors, }
     return render(request, "student/studenthome.html", context)
 
 
 def tutorhome(request):
-    return render(request, "tutor/tutorhome.html")
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'tutor':
+        return redirect('log')
+    user = get_object_or_404(User, id=user_id)
+    tutor = get_object_or_404(Tutor, uid=user_id)
+    context = { 'user': user, 'tutor_fullname': tutor.fullname, 'tutor_gender': tutor.gender, }
+    return render(request, "tutor/tutorhome.html", context)
 
 
 def adminhome(request):

@@ -85,11 +85,19 @@
     </header>
     <!-- end header section -->
 
-        <!-- Greeting Section -->
-    <section style="text-align: center; padding: 50px; background-color: #6f42c1;">
-      <h1 style="color: white; font-weight: bold; font-size: 48px;">
-        Hi, [Student Name]!
-      </h1>
+    <!-- Greeting Section -->
+    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
+        <h1 style="color: white; font-weight: bold; font-size: 48px;">
+            Hi,
+            {% if tutor_gender == 'male' %}
+                Mr. {{ tutor_fullname }}!
+            {% elif tutor_gender == 'female' %}
+                Ms. {{ tutor_fullname }}!
+            {% else %}
+                {{ tutor_fullname }}!
+            {% endif %}
+        </h1><br>
+        <h1 style="color: white; font-weight: bold; font-size: 28px;">Welcome to tutors dashboard</h1>
     </section>
 
 

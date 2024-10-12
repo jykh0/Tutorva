@@ -39,6 +39,59 @@
   .dropdown-item:hover {
     background-color: #f1f1f1; /* Change background on hover */
   }
+  .suggested_tutors_section {
+  padding: 50px 0;
+  background-color: #7235b7; /* White background for the section */
+  }
+
+  .rounded-input {
+    border-radius: 25px; /* Rounded edges for search input */
+    border: 1px solid #7235b7; /* Border color */
+    margin-bottom: 20px; /* Spacing below the input */
+  }
+
+  .tutor-card {
+    margin-bottom: 20px; /* Spacing between cards */
+  }
+
+  .card {
+    background-color: white; /* White background for the card */
+    border-radius: 15px; /* Rounded edges for the card */
+    padding: 20px; /* Padding inside the card */
+    text-align: center; /* Center text in the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a subtle depth effect */
+  }
+
+  .tutor-img {
+    width: 100px; /* Fixed size for profile image */
+    height: 100px; /* Fixed size for profile image */
+    margin-bottom: 10px; /* Spacing below the image */
+  }
+
+  .tutor-name {
+    font-weight: bold; /* Bold name */
+  }
+
+  .button-container {
+    margin-top: 15px; /* Spacing above buttons */
+  }
+
+  .btn {
+      background-color: #7235b7; /* Button background color */
+      color: white; /* Button text color */
+      border: none; /* Remove default border */
+      border-radius: 25px; /* Rounded edges for buttons */
+      padding: 10px 15px; /* Padding inside buttons */
+      text-decoration: none; /* Remove underline */
+      display: inline-block; /* Align buttons side by side */
+      transition: background-color 0.3s; /* Smooth transition for background color */
+  }
+
+  .btn:hover {
+      background-color: #ff8c00; /* Dark orange background on hover */
+      color: white; /* Keep text color white on hover */
+  }
+
 </style>
 </head>
 
@@ -91,6 +144,38 @@
         Hi, {{ student_fullname }}!
       </h1>
     </section>
+
+<!-- Suggested Tutors Section -->
+<section class="suggested_tutors_section layout_padding">
+  <div class="container">
+    <div class="heading_container">
+      <h2 style="color: white;">Suggested Tutors</h2>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by name, city, state, or subject"
+        class="form-control rounded-input"
+        onkeyup="filterTutors()"/>  <!-- Call filter function on input -->
+    </div>
+    <div class="row" id="tutorGrid">
+      {% for tutor in tutors %}
+      <div class="col-md-4 tutor-card" data-city="{{ tutor.city }}" data-state="{{ tutor.state }}">
+        <div class="card">
+          <center>
+            <img src="{{ tutor.profile_picture.url }}" alt="{{ tutor.fullname }}" class="tutor-img rounded-circle">
+          </center>
+          <h5 class="tutor-name">{{ tutor.fullname }}</h5>
+          <p class="tutor-subject">{{ tutor.subjects_offered }}</p>
+          <div class="button-container">
+            <a href="#" class="btn btn-enquiry">Enquiry</a>
+            <a href="#" class="btn btn-book">Book Now</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 
 
 
@@ -333,6 +418,33 @@
   <!-- Google Map -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
   <!-- End Google Map -->
+<script>
+  function filterTutors() {
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const tutorCards = document.querySelectorAll('.tutor-card');
+
+    tutorCards.forEach(card => {
+      const name = card.querySelector('.tutor-name').textContent.toLowerCase();
+      const subject = card.querySelector('.tutor-subject').textContent.toLowerCase();
+      const city = card.getAttribute('data-city').toLowerCase();  // Ensure each card has data attributes for city/state
+      const state = card.getAttribute('data-state').toLowerCase();
+
+      // Check if the input matches any of the tutor's information
+      if (
+        name.includes(input) ||
+        subject.includes(input) ||
+        city.includes(input) ||
+        state.includes(input)
+      ) {
+        card.style.display = ''; // Show the card
+      } else {
+        card.style.display = 'none'; // Hide the card
+      }
+    });
+  }
+</script>
+
+
 
 </body>
 
