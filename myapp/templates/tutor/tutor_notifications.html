@@ -150,6 +150,35 @@
       <h1 style="color: white; font-weight: bold; font-size: 48px;">Notifications</h1>
     </section>
 
+<!-- Bookings Section -->
+<div class="bookings-list" style="background-color: #7235b7; padding: 50px 0;">
+    <div class="container">
+        <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: white;">Bookings</h2>
+        </div>
+        {% for booking in bookings %}
+            <div class="booking-row" id="booking-{{ booking.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+                <h5 style="font-weight: bold;">From: {{ booking.student.fullname }}</h5>
+                <div class="button-container" style="text-align: right;">
+                    {% if booking.is_accepted %}
+                        <span class="btn btn-success" style="border-radius: 20px; padding: 10px 20px;" disabled>Booking Accepted</span>
+                    {% elif booking.is_rejected %}
+                        <span class="btn btn-danger" style="border-radius: 20px; padding: 10px 20px;" disabled>Booking Declined</span>
+                    {% else %}
+                        <a href="#" class="btn btn-success" style="border-radius: 20px; padding: 10px 20px;" onclick="acceptBooking({{ booking.id }})">Accept</a>
+                        <a href="#" class="btn btn-danger" style="border-radius: 20px; padding: 10px 20px;" onclick="declineBooking({{ booking.id }})">Decline</a>
+                        <a href="{% url 'studentviewprofile' %}?id={{ booking.student.id }}" class="btn btn-warning" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; margin-left: 10px;">View Profile</a>
+                    {% endif %}
+                    <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px;" onclick="deleteNotification({{ booking.id }}, 'booking')">X</a>
+                </div>
+            </div>
+        {% empty %}
+            <p style="color: white;">No bookings yet.</p>
+        {% endfor %}
+    </div>
+</div>
+
+
 
 <!-- Enquiries Section -->
 <div class="enquiries_section" style="background-color: #7235b7; padding: 50px 0;">
@@ -161,11 +190,11 @@
           {% for enquiry in enquiries %}
               <div class="enquiry-row" id="enquiry-{{ enquiry.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
                   <h5 style="font-weight: bold;">From: {{ enquiry.student.fullname }}</h5>
-                  <p>{{ enquiry.message }}</p> <!-- Just displaying the message -->
+                  <p>{{ enquiry.message }}</p>
                   <div class="button-container" style="text-align: right;">
-                      <a href="#" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Profile</a>
+                      <a href="{% url 'studentviewprofile' %}?id={{ enquiry.student.id }}" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Profile</a>
                       <a href="#" class="btn-reply" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;" data-toggle="modal" data-target="#replyModal" data-enquiry-id="{{ enquiry.id }}">Reply</a>
-                      <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteNotification({{ enquiry.id }})">X</a>
+                      <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteNotification({{ enquiry.id }}, 'enquiry')">X</a>
                   </div>
               </div>
           {% empty %}
@@ -174,7 +203,6 @@
       </div>
   </div>
 </div>
-
 
 
 <!-- Reply Modal -->
@@ -188,7 +216,7 @@
               </button>
           </div>
           <div class="modal-body">
-              <form id="replyForm" method="POST" action="{% url 'reply_enquiry' %}">
+              <form id="replyForm" method="POST">
                   {% csrf_token %}
                   <input type="hidden" name="enquiry_id" id="enquiry_id">
                   <textarea name="response" class="form-control" rows="5" placeholder="Type your response here..."></textarea>
@@ -207,61 +235,128 @@
 
 
 
+
   </div>
 
-  <!-- jQery -->
-  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
-  <!-- popper js -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
-  <!-- bootstrap js -->
-  <script src="{% static 'home/js/bootstrap.js' %}"></script>
-  <script src="{% static 'home/js/custom.js' %}"></script>
-  <!-- Google Map -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
-  <!-- End Google Map -->
+<!-- jQery -->
+<script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+<!-- popper js -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<!-- bootstrap js   -->
+<script src="{% static 'home/js/bootstrap.js' %}"></script>
+<script src="{% static 'home/js/custom.js' %}"></script>
+<script src="{% static 'home/js/tutornotifications_booking.js' %}"></script>
+
+
 
 
 <script>
-  // JavaScript to populate the modal with the enquiry ID
   $('#replyModal').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget); // Button that triggered the modal
-      var enquiryId = button.data('enquiry-id'); // Extract info from data-* attributes
+      var button = $(event.relatedTarget);
+      var enquiryId = button.data('enquiry-id');
       var modal = $(this);
-      modal.find('#enquiry_id').val(enquiryId); // Set the enquiry ID in the hidden input
+      modal.find('#enquiry_id').val(enquiryId);
   });
 
-  function deleteNotification(enquiryId) {
-      const enquiryRow = document.getElementById(`enquiry-${enquiryId}`);
-      if (enquiryRow) {
-          enquiryRow.style.transition = 'opacity 1s'; // Set the transition effect
-          enquiryRow.style.opacity = '0'; // Start fading out
+  $('#replyForm').on('submit', function (event) {
+      event.preventDefault(); // Prevent the default form submission
+      var formData = $(this).serialize(); // Serialize the form data
 
-          // Send a POST request to update tutor_x
-          fetch(window.location.href, { // Use the current URL for the request
+      $.ajax({
+          url: '{% url "reply_enquiry" %}', // URL to send the data
+          type: 'POST',
+          data: formData,
+          success: function (response) {
+              if (response.success) {
+                  $('#replyModal').modal('hide'); // Hide the modal
+                  var enquiryId = $('#replyForm').find('#enquiry_id').val();
+                  const enquiryRow = $('#enquiry-' + enquiryId);
+                  const textarea = $('#replyForm textarea');
+
+                  // Update the enquiry message with the tutor's response
+                  enquiryRow.find('p').text(textarea.val());
+                  textarea.val(''); // Clear the textarea
+                  alert('Reply sent successfully!');
+              } else {
+                  alert('Error: Could not send reply.');
+              }
+          },
+          error: function (xhr, status, error) {
+              console.error('Error occurred:', error);
+              alert('Error: Something went wrong.');
+          }
+      });
+  });
+
+  function acceptBooking(bookingId) {
+      updateBookingStatus(bookingId, 'accept');
+  }
+
+  function declineBooking(bookingId) {
+      updateBookingStatus(bookingId, 'decline');
+  }
+
+  function updateBookingStatus(bookingId, action) {
+      fetch(window.location.href, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': getCookie('csrftoken'),
+          },
+          body: new URLSearchParams({
+              'booking_id': bookingId,
+              'action': action
+          })
+      })
+      .then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              const bookingRow = document.getElementById(`booking-${bookingId}`);
+              if (action === 'accept') {
+                  bookingRow.innerHTML = `
+                      <span class="btn btn-success" style="border-radius: 20px; padding: 10px 20px;" disabled>Booking Accepted</span>
+                      <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px;" onclick="deleteNotification(${bookingId}, 'booking')">X</a>`;
+              } else if (action === 'decline') {
+                  bookingRow.innerHTML = `
+                      <span class="btn btn-danger" style="border-radius: 20px; padding: 10px 20px;" disabled>Booking Declined</span>
+                      <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px;" onclick="deleteNotification(${bookingId}, 'booking')">X</a>`;
+              }
+          } else {
+              console.error('Error:', data.error);
+          }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  function deleteNotification(id, type) {
+      const rowId = `${type}-${id}`;
+      const rowElement = document.getElementById(rowId);
+      if (rowElement) {
+          rowElement.style.transition = 'opacity 1s';
+          rowElement.style.opacity = '0';
+
+          fetch(window.location.href, {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/x-www-form-urlencoded',
-                  'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+                  'X-CSRFToken': getCookie('csrftoken'),
               },
               body: new URLSearchParams({
-                  'enquiry_id': enquiryId // Send the enquiry ID
+                  'enquiry_id': id,
               })
           })
           .then(response => {
               if (!response.ok) {
                   console.error('Failed to update tutor_x');
               }
-              // Remove the element from the DOM after the fade-out effect is complete
               setTimeout(() => {
-                  enquiryRow.style.display = 'none'; // Hide the element after fading out
-              }, 1000); // Match the duration of the CSS transition
+                  rowElement.style.display = 'none';
+              }, 1000);
           })
           .catch(error => console.error('Error:', error));
       }
   }
 
-  // Helper function to get CSRF token (if using Django's CSRF protection)
   function getCookie(name) {
       let cookieValue = null;
       if (document.cookie && document.cookie !== '') {
@@ -277,9 +372,6 @@
       return cookieValue;
   }
 </script>
-
-
-
 
 </body>
 

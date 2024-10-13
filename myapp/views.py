@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import User, Student, Tutor, Admin, Enquiry
+from .models import User, Student, Tutor, Admin, Enquiry, Booking
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse, Http404
@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.urls import reverse
-from django.contrib.auth.decorators import login_required
+import json
 
 from . import views
 
@@ -152,8 +152,44 @@ def studenthomepage(request):
     if not tutors.exists():
         tutors = Tutor.objects.filter(state=student.state)
     tutors = tutors.distinct()[:9]
-    context = { 'user': user, 'student_fullname': student.fullname, 'tutors': tutors, }
+    current_tutors = Tutor.objects.filter(booking__student=student, booking__is_accepted=True).distinct()
+    context = { 'user': user, 'student_fullname': student.fullname, 'tutors': tutors, 'current_tutors': current_tutors }
     return render(request, "student/studenthome.html", context)
+
+
+def submit_enquiry(request):
+    if request.method == "POST":
+        student = get_object_or_404(Student, uid=request.session.get('user_id'))
+        tutor_id = request.POST.get('tutor_id')
+        message = request.POST.get('message')
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+        Enquiry.objects.create(student=student, tutor=tutor, message=message)
+        messages.success(request, "Your enquiry has been sent to the tutor.")
+        return redirect('studenthome')
+    return redirect('studenthome')
+
+
+def book_tutor(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'error': 'User not logged in.'})
+    student = get_object_or_404(Student, uid=user_id)
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            tutor_id = data.get('tutor_id')
+            tutor = get_object_or_404(Tutor, id=tutor_id)
+            existing_booking = Booking.objects.filter(student=student, tutor=tutor, is_rejected=False).first()
+            if existing_booking:
+                return JsonResponse({'success': False, 'error': 'You have already booked this tutor.'})
+            rejected_booking = Booking.objects.filter(student=student, tutor=tutor, is_rejected=True).first()
+            if rejected_booking and not rejected_booking.can_rebook():
+                return JsonResponse({'success': False, 'error': 'You cannot rebook this tutor for another 7 days.'})
+            Booking.objects.create(student=student, tutor=tutor)
+            return JsonResponse({'success': True, 'message': 'Booking request sent successfully.'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON format.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 
 def tutorhome(request):
@@ -354,43 +390,57 @@ def tutoreditprofile(request):
     context = {'tutor': tutor}
     return render(request, "tutor/tutor_editprofile.html", context)
 
-def submit_enquiry(request):
-    if request.method == "POST":
-        student = get_object_or_404(Student, uid=request.session.get('user_id'))
-        tutor_id = request.POST.get('tutor_id')
-        message = request.POST.get('message')
-        tutor = get_object_or_404(Tutor, id=tutor_id)
-        Enquiry.objects.create(student=student, tutor=tutor, message=message)
-        messages.success(request, "Your enquiry has been sent to the tutor.")
-        return redirect('studenthome')
-    return redirect('studenthome')
 
-
-def tutornotifications(request):
+def tutor_notifications(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('log')
     tutor = Tutor.objects.filter(uid__id=user_id).first()
     if not tutor:
         return redirect('log')
-    if request.method == 'POST':
-        enquiry_id = request.POST.get('enquiry_id')
-        try:
-            enquiry = Enquiry.objects.get(id=enquiry_id)
-            enquiry.tutor_x = True
-            enquiry.save()
-            return JsonResponse({'success': True})
-        except Enquiry.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
     enquiries = Enquiry.objects.filter(tutor=tutor, tutor_x=False)
-    return render(request, 'tutor/tutor_notifications.html', {'enquiries': enquiries})
+    bookings = Booking.objects.filter(tutor=tutor, tutor_x=False, student_x=False)  # Added tutor_x filter
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')
+        action = request.POST.get('action')
+
+        if booking_id and action in ['accept', 'decline']:
+            try:
+                booking = Booking.objects.get(id=booking_id, tutor=tutor)
+                if action == 'accept':
+                    booking.is_accepted = True
+                elif action == 'decline':
+                    booking.is_rejected = True
+                booking.tutor_x = True
+                booking.save()
+                return JsonResponse({'success': True})
+            except Booking.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Booking not found.'})
+        enquiry_id = request.POST.get('enquiry_id')
+        if enquiry_id:
+            try:
+                enquiry = Enquiry.objects.get(id=enquiry_id, tutor=tutor)
+                enquiry.tutor_x = True
+                enquiry.save()
+                return JsonResponse({'success': True})
+            except Enquiry.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
+    return render(request, 'tutor/tutor_notifications.html', {'enquiries': enquiries, 'bookings': bookings})
+
 
 def reply_enquiry(request):
     if request.method == 'POST':
         enquiry_id = request.POST.get('enquiry_id')
         response = request.POST.get('response')
-        Enquiry.objects.filter(id=enquiry_id).update(response=response, status='answered')
-        return redirect('tutornotifications')
+        try:
+            enquiry = Enquiry.objects.get(id=enquiry_id)
+            enquiry.response = response
+            enquiry.status = 'answered'
+            enquiry.save()
+            return JsonResponse({'success': True})
+        except Enquiry.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request.'})
 
 
 def studentnotifications(request):
@@ -399,6 +449,7 @@ def studentnotifications(request):
     if not user_id or user_type != 'student':
         return redirect('log')
     student = get_object_or_404(Student, uid=user_id)
+
     if request.method == 'POST':
         enquiry_id = request.POST.get('enquiry_id')
         try:
@@ -409,7 +460,44 @@ def studentnotifications(request):
         except Enquiry.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
     enquiries = Enquiry.objects.filter(student=student, status='answered', student_x=False)
-    context = {'enquiries': enquiries}
+    bookings = Booking.objects.filter(student=student, student_x=False)  # Only show bookings where student_x is False
+
+    context = {
+        'enquiries': enquiries,
+        'bookings': bookings,
+    }
     return render(request, 'student/student_notifications.html', context)
 
 
+def delete_booking_notification(request):
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')
+        try:
+            booking = Booking.objects.get(id=booking_id)
+            booking.student_x = True
+            booking.save()
+            return JsonResponse({'success': True})
+        except Booking.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Booking not found.'})
+    return JsonResponse({'success': False, 'error': 'Invalid request.'})
+
+
+def studentviewprofile(request):
+    student_id = request.GET.get('id')
+    if student_id:
+        student = get_object_or_404(Student, id=student_id)
+    else:
+        user = request.user
+        student = get_object_or_404(Student, uid=user)
+    return render(request, 'student/student_viewprofile.html', {
+        'student': student
+    })
+
+def tutorviewprofile(request):
+    tutor_id = request.GET.get('id')
+    if tutor_id:
+        tutor = get_object_or_404(Tutor, id=tutor_id)
+    else:
+        user = request.user
+        tutor = get_object_or_404(Tutor, uid=user)
+    return render(request, 'tutor/tutor_viewprofile.html', { 'tutor': tutor })

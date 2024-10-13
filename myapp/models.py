@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from datetime import timedelta
 
 class User(models.Model):
     uname = models.CharField("Username", max_length=50, unique=True)
@@ -8,8 +10,8 @@ class User(models.Model):
     reset_token = models.CharField(max_length=50, blank=True, null=True)
     is_active = models.BooleanField("Is Active", default=True)
 
-    def __str__(self):
-        return self.uname
+def __str__(self):
+    return self.uname
 
 class Student(models.Model):
     uid = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -72,3 +74,19 @@ class Enquiry(models.Model):
 
     def __str__(self):
         return f"Enquiry from {self.student.fullname} to {self.tutor.fullname}"
+
+class Booking(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
+    tutor_x = models.BooleanField(default=False)
+    student_x = models.BooleanField(default=False)
+    is_accepted = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    rejection_time = models.DateTimeField(null=True, blank=True)
+
+    def can_rebook(self):
+        if self.is_rejected and self.rejection_time:
+            return timezone.now() > self.rejection_time + timedelta(days=7)
+        return True

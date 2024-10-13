@@ -163,7 +163,7 @@
                         <h5 style="font-size: 20px; font-weight: bold;">From Tutor: {{ enquiry.tutor.fullname }}</h5>
                         <p style="color: #666; font-size: 16px;"><strong>{{ enquiry.response }}</strong></p>
                         <div class="button-container" style="text-align: right;">
-                            <a href="#" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
+                            <a href="{% url 'tutorviewprofile' %}?id={{ enquiry.tutor.id }}" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
                             <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteNotification({{ enquiry.id }})">X</a>
                         </div>
                     </div>
@@ -177,8 +177,41 @@
 
 
 
-  </div>
+<!-- Booking Notifications Section -->
+<div class="booking_notifications_section" style="background-color: #7235b7; padding: 50px 0;">
+    <div class="container">
+        <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: white;">Booking Notifications</h2>
+        </div>
+        <div class="booking-notifications-list">
+            {% if bookings.exists %}
+                {% for booking in bookings %}
+                    <div class="booking-row" id="booking-{{ booking.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
+                        <h5 style="font-size: 20px; font-weight: bold;">Booking with Tutor: {{ booking.tutor.fullname }}</h5>
+                        <p style="color: #666; font-size: 16px;">
+                            {% if booking.is_accepted %}
+                                <strong>Status: Accepted</strong>
+                            {% elif booking.is_rejected %}
+                                <strong>Status: Rejected</strong>
+                            {% else %}
+                                <strong>Status: Pending</strong>
+                            {% endif %}
+                        </p>
+                        <div class="button-container" style="text-align: right;">
+                            <a href="{% url 'tutorviewprofile' %}?id={{ booking.tutor.id }}" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
+                            <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteBookingNotification({{ booking.id }})">X</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: white;">No booking notifications available.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
+
+  </div>
 <script>
 function deleteNotification(enquiryId) {
     const enquiryRow = document.getElementById('enquiry-' + enquiryId);
@@ -194,7 +227,7 @@ function deleteNotification(enquiryId) {
     }
 }
 
-// Function to update student_x in the database
+// Function to update student_x in the database for enquiries
 function updateStudentX(enquiryId) {
     fetch(window.location.href, { // Use the current URL for the request
         method: 'POST',
@@ -208,7 +241,42 @@ function updateStudentX(enquiryId) {
     })
     .then(response => {
         if (!response.ok) {
-            console.error('Failed to update student_x');
+            console.error('Failed to update student_x for enquiry');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Function to delete booking notifications
+function deleteBookingNotification(bookingId) {
+    const bookingRow = document.getElementById('booking-' + bookingId);
+    if (bookingRow) {
+        bookingRow.style.transition = 'opacity 1s ease-out'; // Set the transition for the fade-out effect
+        bookingRow.style.opacity = '0'; // Start fading out
+        setTimeout(() => {
+            bookingRow.style.display = 'none'; // Hide the element after the fade-out animation
+
+            // Update student_x in the database via a POST request
+            updateBookingX(bookingId);
+        }, 1000); // Wait for 1 second (1000 ms) before hiding
+    }
+}
+
+// Function to update student_x in the database for bookings
+function updateBookingX(bookingId) {
+    fetch('/delete-booking-notification/', { // URL for booking deletion
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken'), // Include CSRF token
+        },
+        body: new URLSearchParams({
+            'booking_id': bookingId // Send the booking ID
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error('Failed to update student_x for booking');
         }
     })
     .catch(error => console.error('Error:', error));
@@ -230,6 +298,7 @@ function getCookie(name) {
     return cookieValue;
 }
 </script>
+
 
 
 

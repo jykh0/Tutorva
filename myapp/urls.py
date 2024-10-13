@@ -20,10 +20,14 @@ urlpatterns = [
 
     path('stedpro/', views.studenteditprofile, name='studenteditprofile'),
     path('tuedpro/', views.tutoreditprofile, name='tutoreditprofile'),
-    path('tunoti/', views.tutornotifications, name='tutornotifications'),
+    path('tunoti/', views.tutor_notifications, name='tutornotifications'),
     path('stnoti/', views.studentnotifications, name='studentnotifications'),
+    path('svp/', views.studentviewprofile, name='studentviewprofile'),
+    path('tvp/', views.tutorviewprofile, name='tutorviewprofile'),
 
     # ---------------------other views------------------
-    path('submit_enquiry/', views.submit_enquiry, name='submit_enquiry'),
-    path('reply_enquiry/', views.reply_enquiry, name='reply_enquiry'),
+    path('submit_enquiry/', views.submit_enquiry, name='submit_enquiry'),  # from students homepage
+    path('reply_enquiry/', views.reply_enquiry, name='reply_enquiry'),  # from tutors notification page
+    path('book-tutor/', views.book_tutor, name='book-tutor'),  # from students homepage,studentsnoti deletebooking noti
+    path('delete-booking-notification/', views.delete_booking_notification, name='delete_booking_notification'),
 ]

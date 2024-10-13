@@ -92,6 +92,10 @@
       color: white; /* Keep text color white on hover */
   }
 
+  .btn-view-profile:hover {
+      background-color: orange !important;
+  }
+
 </style>
 </head>
 
@@ -145,6 +149,41 @@
       </h1>
     </section>
 
+    <!-- Current Tutors Section -->
+<section class="current_tutors_section layout_padding" style="background-color: #7235b7; padding: 50px;">
+  <div class="container">
+    <div class="heading_container">
+      <h2 style="color: white;">Your Current Tutors</h2>
+    </div>
+    <div class="row">
+      {% if current_tutors.exists %}
+        {% for tutor in current_tutors %}
+          <div class="col-md-4 tutor-card">
+            <div class="card">
+              <center>
+                <img src="{{ tutor.profile_picture.url }}" alt="{{ tutor.fullname }}" class="tutor-img rounded-circle" style="width: 150px; height: 150px; border: 2px solid white;">
+              </center>
+              <h5 class="tutor-name" style="color: #7235b7; text-align: center;">{{ tutor.fullname }}</h5>
+
+              <div class="button-container" style="text-align: center;">
+                <a href="{% url 'tutorviewprofile' %}?id={{ tutor.id }}"
+                   class="btn btn-view-profile"
+                   style="background-color: #7235b7; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; transition: background-color 0.3s;">
+                   View Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: white; text-align: center;">You have no current tutors.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+
+
 <!-- Suggested Tutors Section -->
 <section class="suggested_tutors_section layout_padding">
   <div class="container">
@@ -155,7 +194,7 @@
         id="searchInput"
         placeholder="Search by name, city, state, or subject"
         class="form-control rounded-input"
-        onkeyup="filterTutors()"/>  <!-- Call filter function on input -->
+        onkeyup="filterTutors()"/>
     </div>
     <div class="row" id="tutorGrid">
       {% for tutor in tutors %}
@@ -166,10 +205,20 @@
           </center>
           <h5 class="tutor-name">{{ tutor.fullname }}</h5>
           <p class="tutor-subject">{{ tutor.subjects_offered }}</p>
+
+          <div class="button-container">
+              <button type="button" class="btn" onclick="bookNow(1, this)">Book Now</button>
+              <div id="notification-1" style="display: none; background-color: green; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                  <br>Booking request sent successfully!
+              </div>
+              <div id="error-notification-1" style="display: none; background-color: orange; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                  <br>You have already booked this tutor.
+              </div>
+          </div>
+
           <div class="button-container">
             <!-- Enquiry Button with Modal Trigger -->
             <button type="button" class="btn btn-enquiry" data-tutor-id="{{ tutor.id }}" onclick="openEnquiryModal({{ tutor.id }}, '{{ tutor.fullname }}')">Enquiry</button>
-            <a href="#" class="btn btn-book">Book Now</a>
           </div>
         </div>
       </div>
@@ -177,7 +226,6 @@
     </div>
   </div>
 </section>
-
 
 <!-- Enquiry Modal -->
 <div class="modal fade" id="enquiryModal" tabindex="-1" role="dialog" aria-labelledby="enquiryModalLabel" aria-hidden="true">
@@ -196,6 +244,8 @@
           <div class="form-group">
             <label for="enquiryMessage">Message</label>
             <textarea class="form-control" name="message" id="enquiryMessage" rows="3" style="border-radius: 10px; border: 2px solid #7235b7;"></textarea>
+            <!-- Error message placeholder -->
+            <small id="error-message" style="color: red; display: none;">Message must be at least 3 characters long.</small>
           </div>
         </div>
         <div class="modal-footer">
@@ -206,6 +256,7 @@
     </div>
   </div>
 </div>
+
 
 
 
@@ -293,154 +344,13 @@
 <!-- end slider section -->
   </div>
 
-  <!-- service section -->
-  <section class="service_section layout_padding">
-    <div class="container">
-      <div class="heading_container">
-        <h2>
-          Our Services
-        </h2>
-        <p>
-          consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        </p>
-      </div>
-      <div class="row">
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{% static 'home/images/s1.png' %}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                Link Building
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{% static 'home/images/s2.png' %}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                On page SEO
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{% static 'home/images/s3.png' %}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                Online Marketing
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
-          <div class="box">
-            <div class="img-box">
-              <img src="{% static 'home/images/s4.png' %}" alt="">
-            </div>
-            <div class="detail-box">
-              <h5>
-                Email Marketing
-              </h5>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-              </p>
-              <a href="">
-                <span>
-                  Read More
-                </span>
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="btn-box">
-        <a href="">
-          View More
-        </a>
-      </div>
-    </div>
-  </section>
-  <!-- end service section -->
-
-  <!-- about section -->
-
-  <section class="about_section layout_padding">
-    <div class="container  ">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="detail-box">
-            <div class="heading_container">
-              <h2>
-                About Us
-              </h2>
-            </div>
-            <p>
-              There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
-              in some form, by injected humour, or randomised words which don't look even slightly believable. If you
-              are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in
-              the middle of text. All
-            </p>
-            <a href="">
-              Read More
-            </a>
-          </div>
-        </div>
-        <div class="col-md-6 ">
-          <div class="img-box">
-            <img src="{% static 'home/images/about-img.png' %}" alt="">
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- end about section -->
-
   </div>
 
   <!-- jQery -->
   <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="{% static 'js/studenthome.js' %}"></script>
   <!-- popper js -->
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
   <!-- bootstrap js -->
   <script src="{% static 'home/js/bootstrap.js' %}"></script>
   <script src="{% static 'home/js/custom.js' %}"></script>
@@ -448,44 +358,26 @@
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
   <!-- End Google Map -->
 <script>
-  // Open the modal and fill in the tutor details
-  function openEnquiryModal(tutorId, tutorName) {
-    // Set tutor details in the modal
-    document.getElementById('tutorId').value = tutorId;
-    document.getElementById('tutorName').textContent = tutorName;
+  // Add event listener to form submission
+  document.getElementById('enquiryForm').addEventListener('submit', function (event) {
+    const enquiryMessage = document.getElementById('enquiryMessage').value.trim();
+    const errorMessage = document.getElementById('error-message');
 
-    // Show the modal
-    $('#enquiryModal').modal('show');
-  }
+    // Check if the message is less than 3 characters
+    if (enquiryMessage.length < 3) {
+      event.preventDefault(); // Prevent form submission
+      errorMessage.style.display = 'block'; // Show error message
+    } else {
+      errorMessage.style.display = 'none'; // Hide error message if valid
+    }
+  });
 
-  // Filter tutors based on search input
-  function filterTutors() {
-    const input = document.getElementById('searchInput').value.toLowerCase();
-    const tutorCards = document.querySelectorAll('.tutor-card');
-
-    tutorCards.forEach(card => {
-      const name = card.querySelector('.tutor-name').textContent.toLowerCase();
-      const subject = card.querySelector('.tutor-subject').textContent.toLowerCase();
-      const city = card.getAttribute('data-city').toLowerCase();
-      const state = card.getAttribute('data-state').toLowerCase();
-
-      // Check if the input matches any of the tutor's information
-      if (
-        name.includes(input) ||
-        subject.includes(input) ||
-        city.includes(input) ||
-        state.includes(input)
-      ) {
-        card.style.display = ''; // Show the card
-      } else {
-        card.style.display = 'none'; // Hide the card
-      }
-    });
-  }
+  // Optional: Clear error message when modal is closed or opened again
+  $('#enquiryModal').on('hidden.bs.modal', function () {
+    document.getElementById('error-message').style.display = 'none';
+    document.getElementById('enquiryMessage').value = ''; // Clear the message
+  });
 </script>
-
-
-
 
 </body>
 

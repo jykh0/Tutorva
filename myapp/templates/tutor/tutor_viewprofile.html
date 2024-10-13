@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>{{ tutor.fullname }}'s Profile</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/responsive.css' %}" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .header_section {
+      background-color: #7235b7;
+      padding: 15px 0;
+    }
+    .header_section .navbar-brand {
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .profile-section {
+      text-align: center;
+      margin-top: 1px;  /* Reduced margin */
+    }
+    .profile-img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 3px solid #7235b7;
+      margin: 10px 0;  /* Reduced vertical margin */
+    }
+    .profile-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      margin: 1px 0;  /* Reduced margin */
+    }
+    .profile-details {
+      background-color: white;
+      border-radius: 15px;
+      padding: 15px;  /* Reduced padding */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: inline-block;
+      margin-top: 1px;  /* Reduced margin */
+    }
+    .profile-details h5 {
+      margin-bottom: 1px;  /* Reduced margin */
+      color: #7235b7;
+    }
+    .profile-details p {
+      margin: 3px 0;  /* Reduced margin */
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="hero_area">
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="javascript:history.back()">Back</a>
+        </nav>
+      </div>
+    </header>
+    <section class="profile-section">
+      <div class="profile-name">
+        {% if tutor.gender == 'male' %}Mr. {% elif tutor.gender == 'female' %}Ms. {% endif %}{{ tutor.fullname }}'s Profile
+      </div>
+    </section>
+    <section class="profile-section">
+      <img src="{{ tutor.profile_picture.url }}" alt="{{ tutor.fullname }}" class="profile-img">
+    </section>
+    <section class="profile-section">
+      <div class="profile-details">
+        <h5>Email:</h5>
+        <p>{{ tutor.uid.email }}</p>
+        <h5>Gender:</h5>
+        <p>{{ tutor.gender }}</p>
+        <h5>Phone:</h5>
+        <p>{{ tutor.phone }}</p>
+        <h5>Qualifications:</h5>
+        <p>{{ tutor.qualifications }}</p>
+        <h5>Subjects Offered:</h5>
+        <p>{{ tutor.subjects_offered }}</p>
+        <h5>Level:</h5>
+        <p>{{ tutor.level }}</p>
+        <h5>Address:</h5>
+        <p>{{ tutor.street }}, {{ tutor.city }}, {{ tutor.state }}</p>
+      </div>
+    </section>
+  </div>
+  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+  <script src="{% static 'home/js/bootstrap.js' %}"></script>
+</body>
+</html>
+
