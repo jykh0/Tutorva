@@ -166,7 +166,7 @@
     <header class="header_section">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg custom_nav-container">
-          <a class="navbar-brand" href="index.html">
+          <a class="navbar-brand" href="#">
             <span>
               Tutorva
             </span>
@@ -218,18 +218,25 @@
       <!-- Profile Edit Form -->
       <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
         {% csrf_token %}
+
+
         <!-- Profile Picture Section -->
         <div class="profile-pic-container">
-          <img id="profilePic" src="{{ student.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
-          <div class="edit-icon-container">
-            <i class="fa fa-pencil edit-icon" onclick="showOptions()"></i>
-            <div id="picOptions" class="pic-options" style="display: none;">
-              <button type="button" class="remove-pic-btn" onclick="removeProfilePic()">Remove</button>
-              <input type="file" accept=".jpeg, .jpg" id="uploadPicInput" name="profile_picture" class="upload-pic-input" onchange="uploadProfilePic()">
-              <label for="uploadPicInput" class="upload-pic-btn">Upload</label>
+            <img id="profilePic" src="{{ student.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+            <div class="edit-icon-container">
+                <i class="fa fa-pencil edit-icon" onclick="showOptions()"></i>
+                <div id="picOptions" class="pic-options" style="display: none;">
+                    <button type="button" class="remove-pic-btn" onclick="removeProfilePic()">Remove</button>
+                    <input type="file" accept=".jpeg, .jpg" id="uploadPicInput" name="profile_picture" class="upload-pic-input" onchange="uploadProfilePic()">
+                    <label for="uploadPicInput" class="upload-pic-btn">Upload</label>
+                </div>
             </div>
-          </div>
         </div>
+
+
+        <!-- Hidden input for removing profile picture -->
+        <input type="hidden" name="remove_pic" id="removePicInput" value="0">
+
 
         <div class="form-group">
           <label for="fullname">Full Name</label>
@@ -294,9 +301,6 @@
 
   </div><!--this div is imp for purple color bg--->
 
-
-
-
   <!-- jQery -->
   <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
   <!-- popper js -->
@@ -315,18 +319,18 @@
   }
 
   function removeProfilePic() {
-      document.getElementById("profilePic").src = ""; // Set to empty or a placeholder
-      document.getElementById("uploadPicInput").value = ""; // Clear the file input
+      document.getElementById("profilePic").src = "/media/profile_pics/default_profile.jpg";
+      document.getElementById("uploadPicInput").value = "";
+      document.getElementById("removePicInput").value = "1";
   }
 
   function uploadProfilePic() {
       const input = document.getElementById("uploadPicInput");
       const file = input.files[0];
-
       if (file) {
           const reader = new FileReader();
           reader.onload = function (e) {
-              document.getElementById("profilePic").src = e.target.result; // Show the uploaded image
+              document.getElementById("profilePic").src = e.target.result;
           };
           reader.readAsDataURL(file);
       }
@@ -335,8 +339,7 @@
   function validateFullName() {
       const fullname = document.getElementById("fullname");
       const error = document.getElementById("fullnameError");
-      const regex = /^[A-Z][a-zA-Z\s]{3,}$/; // Starts with uppercase and min 3 characters
-
+      const regex = /^[A-Z][a-zA-Z\s]{3,}$/;
       if (!regex.test(fullname.value.trim())) {
           error.textContent = "Enter a valid Full Name";
           return false;
@@ -349,8 +352,7 @@
   function validatePhone() {
       const phone = document.getElementById("phone");
       const error = document.getElementById("phoneError");
-      const regex = /^[0-9]{10}$/; // 10 digits only
-
+      const regex = /^[0-9]{10}$/;
       if (!regex.test(phone.value.trim())) {
           error.textContent = "Enter a valid Phone Number (10 digits)";
           return false;
@@ -363,8 +365,7 @@
   function validateStreetCityState(inputId, errorId) {
       const input = document.getElementById(inputId);
       const error = document.getElementById(errorId);
-      const regex = /^(?![\d\s])[A-Za-z0-9\s]+$/; // Not starting with a digit or whitespace
-
+      const regex = /^(?![\d\s])[A-Za-z0-9\s]+$/;
       if (!regex.test(input.value.trim())) {
           error.textContent = "Enter a valid input for " + inputId.charAt(0).toUpperCase() + inputId.slice(1);
           return false;
@@ -377,8 +378,7 @@
   function validatePincode() {
       const pincode = document.getElementById("pincode");
       const error = document.getElementById("pincodeError");
-      const regex = /^[0-9]{6}$/; // 6 digits only
-
+      const regex = /^[0-9]{6}$/;
       if (!regex.test(pincode.value.trim())) {
           error.textContent = "Enter a valid Pincode (6 digits)";
           return false;
@@ -395,11 +395,9 @@
       const isCityValid = validateStreetCityState("city", "cityError");
       const isStateValid = validateStreetCityState("state", "stateError");
       const isPincodeValid = validatePincode();
-
       return isFullNameValid && isPhoneValid && isStreetValid && isCityValid && isStateValid && isPincodeValid;
   }
 
-  // Add event listeners for live validation
   document.getElementById("fullname").addEventListener("input", validateFullName);
   document.getElementById("phone").addEventListener("input", validatePhone);
   document.getElementById("street").addEventListener("input", () => validateStreetCityState("street", "streetError"));

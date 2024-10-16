@@ -218,18 +218,23 @@
       <!-- Profile Edit Form -->
       <form method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
         {% csrf_token %}
-        <!-- Profile Picture Section -->
-        <div class="profile-pic-container">
-          <img id="profilePic" src="{{ tutor.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
-          <div class="edit-icon-container">
-            <i class="fa fa-pencil edit-icon" onclick="showOptions()"></i>
-            <div id="picOptions" class="pic-options" style="display: none;">
+
+
+      <!-- Profile Picture Section -->
+      <div class="profile-pic-container">
+      <img id="profilePic" src="{{ tutor.profile_picture.url }}" alt="Profile Picture" class="profile-pic">
+      <div class="edit-icon-container">
+          <i class="fa fa-pencil edit-icon" onclick="showOptions()"></i>
+          <div id="picOptions" class="pic-options" style="display: none;">
               <button type="button" class="remove-pic-btn" onclick="removeProfilePic()">Remove</button>
               <input type="file" accept=".jpeg, .jpg" id="uploadPicInput" name="profile_picture" class="upload-pic-input" onchange="uploadProfilePic()">
               <label for="uploadPicInput" class="upload-pic-btn">Upload</label>
-            </div>
+              <!-- Hidden field to track picture removal -->
+              <input type="hidden" id="removeProfilePicture" name="remove_profile_picture" value="no">
           </div>
-        </div>
+      </div>
+      </div>
+
 
         <div class="form-group">
           <label for="fullname">Full Name</label>
@@ -330,8 +335,9 @@
   }
 
   function removeProfilePic() {
-      document.getElementById("profilePic").src = ""; // Set to empty or a placeholder
+      document.getElementById("profilePic").src = "/media/profile_pics/default_profile.jpg"; // Set to default image
       document.getElementById("uploadPicInput").value = ""; // Clear the file input
+      document.getElementById("removeProfilePicture").value = "yes"; // Update the hidden input
   }
 
   function uploadProfilePic() {
@@ -342,10 +348,12 @@
           const reader = new FileReader();
           reader.onload = function (e) {
               document.getElementById("profilePic").src = e.target.result; // Show the uploaded image
+              document.getElementById("removeProfilePicture").value = "no"; // Clear the removal flag
           };
           reader.readAsDataURL(file);
       }
   }
+
 
   function validateFullName() {
       const fullname = document.getElementById("fullname");

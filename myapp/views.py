@@ -335,6 +335,7 @@ def studenteditprofile(request):
         pincode = request.POST.get('pincode')
         location_type = request.POST.get('location_type')
         profile_picture = request.FILES.get('profile_picture')
+        remove_pic = request.POST.get('remove_pic')
         student.fullname = fullname
         student.phone = phone
         student.level = level
@@ -346,6 +347,8 @@ def studenteditprofile(request):
         student.location_type = location_type
         if profile_picture:
             student.profile_picture = profile_picture
+        elif remove_pic == '1':
+            student.profile_picture = 'profile_pics/default_profile.jpg'
         student.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('studenteditprofile')
@@ -357,7 +360,9 @@ def tutoreditprofile(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('log')
+
     tutor = get_object_or_404(Tutor, uid=user_id)
+
     if request.method == 'POST':
         fullname = request.POST.get('fullname')
         phone = request.POST.get('phone')
@@ -371,6 +376,8 @@ def tutoreditprofile(request):
         availability = request.POST.get('availability')
         location_type = request.POST.get('location_type')
         profile_picture = request.FILES.get('profile_picture')
+
+        # Update tutor fields
         tutor.fullname = fullname
         tutor.phone = phone
         tutor.qualifications = qualifications
@@ -382,11 +389,17 @@ def tutoreditprofile(request):
         tutor.pincode = pincode
         tutor.availability = availability
         tutor.location_type = location_type
+
+        # Handle profile picture
         if profile_picture:
             tutor.profile_picture = profile_picture
+        elif request.POST.get('remove_profile_picture') == 'yes':
+            tutor.profile_picture = 'profile_pics/default_profile.jpg'  # Reset to default picture
+
         tutor.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('tutoreditprofile')
+
     context = {'tutor': tutor}
     return render(request, "tutor/tutor_editprofile.html", context)
 

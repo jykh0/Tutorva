@@ -77,21 +77,23 @@ function openEnquiryModal(tutorId, tutorName) {
 }
 
 function filterTutors() {
-  const searchInput = document.getElementById('searchInput').value.toLowerCase();
+  const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
   const tutorCards = document.querySelectorAll('.tutor-card');
 
   tutorCards.forEach(card => {
-    const name = card.querySelector('.tutor-name').textContent.toLowerCase();
-    const city = card.dataset.city.toLowerCase();
-    const state = card.dataset.state.toLowerCase();
+    const name = card.querySelector('.tutor-name').textContent.toLowerCase().trim();
+    const subject = card.querySelector('.tutor-subject').textContent.toLowerCase().trim();
+    const city = card.dataset.city ? card.dataset.city.toLowerCase().trim() : '';
+    const state = card.dataset.state ? card.dataset.state.toLowerCase().trim() : '';
 
-    if (name.includes(searchInput) || city.includes(searchInput) || state.includes(searchInput)) {
+    if (name.includes(searchInput) || subject.includes(searchInput) || city.includes(searchInput) || state.includes(searchInput)) {
       card.style.display = 'block';
     } else {
       card.style.display = 'none';
     }
   });
 }
+
 
 // Function to accept a booking
 function acceptBooking(bookingId) {
