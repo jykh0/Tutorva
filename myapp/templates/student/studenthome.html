@@ -143,14 +143,17 @@
     <!-- end header section -->
 
     <!-- Greeting Section -->
-    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
+    <section style="text-align: center; padding: 10px; background-color: #7235b7;">
       <h1 style="color: white; font-weight: bold; font-size: 48px;">
         Hi, {{ student_fullname }}!
+      </h1>
+      <h1 style="color: white; font-weight: bold; font-size: 28px;">
+        Welcome to student dashboard
       </h1>
     </section>
 
     <!-- Current Tutors Section -->
-<section class="current_tutors_section layout_padding" style="background-color: #7235b7; padding: 50px;">
+<section class="current_tutors_section layout_padding" style="background-color: #7235b7; padding: 10px;">
   <div class="container">
     <div class="heading_container">
       <h2 style="color: white;">Your Current Tutors</h2>
@@ -184,8 +187,7 @@
 
 
 
-<!-- Suggested Tutors Section -->
-<section class="suggested_tutors_section layout_padding">
+<section class="suggested_tutors_section layout_padding" style="padding: 10px;">
   <div class="container">
     <div class="heading_container">
       <h2 style="color: white;">Suggested Tutors</h2>
@@ -196,36 +198,35 @@
         class="form-control rounded-input"
         onkeyup="filterTutors()"/>
     </div>
-    <div class="row" id="tutorGrid">
-      {% for tutor in tutors %}
-      <div class="col-md-4 tutor-card" data-city="{{ tutor.city }}" data-state="{{ tutor.state }}">
+<div class="row" id="tutorGrid">
+    {% for tutor in tutors %}
+    <div class="col-md-4 tutor-card" data-city="{{ tutor.city }}" data-state="{{ tutor.state }}">
         <div class="card">
-          <center>
-            <img src="{{ tutor.profile_picture.url }}" alt="{{ tutor.fullname }}" class="tutor-img rounded-circle">
-          </center>
-          <h5 class="tutor-name">{{ tutor.fullname }}</h5>
-          <p class="tutor-subject">{{ tutor.subjects_offered }}</p>
-
-          <div class="button-container">
-              <button type="button" class="btn" onclick="bookNow(1, this)">Book Now</button>
-              <div id="notification-1" style="display: none; background-color: green; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
-                  <br>Booking request sent successfully!
-              </div>
-              <div id="error-notification-1" style="display: none; background-color: orange; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
-                  <br>You have already booked this tutor.
-              </div>
-          </div>
-
-          <div class="button-container">
-            <!-- Enquiry Button with Modal Trigger -->
-            <button type="button" class="btn btn-enquiry" data-tutor-id="{{ tutor.id }}" onclick="openEnquiryModal({{ tutor.id }}, '{{ tutor.fullname }}')">Enquiry</button>
-          </div>
+            <center>
+                <img src="{{ tutor.profile_picture.url }}" alt="{{ tutor.fullname }}" class="tutor-img rounded-circle">
+            </center>
+            <h5 class="tutor-name">{{ tutor.fullname }}</h5>
+            <p class="tutor-subject">{{ tutor.subjects_offered }}</p>
+            <div class="button-container">
+                <button type="button" class="btn" onclick="bookNow(1, this)">Book Now</button>
+                <div id="notification-1" style="display: none; background-color: green; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                    <br>Booking request sent successfully!
+                </div>
+                <div id="error-notification-1" style="display: none; background-color: orange; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                    <br>You have already booked this tutor.
+                </div>
+            </div>
+            <div class="button-container">
+                <button type="button" class="btn btn-enquiry" data-tutor-id="{{ tutor.id }}" onclick="openEnquiryModal({{ tutor.id }}, '{{ tutor.fullname }}')">Enquiry</button>
+            </div>
         </div>
-      </div>
-      {% endfor %}
     </div>
+    {% endfor %}
+</div>
   </div>
 </section>
+
+
 
 <!-- Enquiry Modal -->
 <div class="modal fade" id="enquiryModal" tabindex="-1" role="dialog" aria-labelledby="enquiryModalLabel" aria-hidden="true">

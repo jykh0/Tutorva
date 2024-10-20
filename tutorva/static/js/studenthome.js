@@ -1,4 +1,3 @@
-// CSRF token setup
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== '') {
@@ -13,33 +12,26 @@ function getCookie(name) {
   }
   return cookieValue;
 }
-
 const csrftoken = getCookie('csrftoken');
 
-// AJAX call to book a tutor
+
 function bookNow(tutorId, button) {
   $.ajax({
     url: '/book-tutor/',
     method: 'POST',
     headers: {
       'X-CSRFToken': csrftoken,
-      'Content-Type': 'application/json'  // Set content type to JSON
+      'Content-Type': 'application/json'
     },
-    data: JSON.stringify({ tutor_id: tutorId }),  // Stringify the data
+    data: JSON.stringify({ tutor_id: tutorId }),
     success: function(response) {
-      // Clear previous notifications
       const container = $(button).closest('.button-container');
       const successNotification = container.find(`#notification-${tutorId}`);
       const errorNotification = container.find(`#error-notification-${tutorId}`);
-
-      // Hide any existing notifications
       successNotification.hide();
       errorNotification.hide();
-
-      // Show appropriate notification
       if (response.success) {
         successNotification.show().text(response.message || 'Booking request sent successfully!');
-        // Hide after 5 seconds
         setTimeout(() => {
           successNotification.fadeOut();
         }, 5000);
@@ -52,7 +44,6 @@ function bookNow(tutorId, button) {
         } else {
           errorNotification.text(response.error || 'Booking failed.');
         }
-        // Hide after 5 seconds
         setTimeout(() => {
           errorNotification.fadeOut();
         }, 5000);
@@ -62,7 +53,6 @@ function bookNow(tutorId, button) {
       console.error('An error occurred:', error);
       const errorNotification = $(button).closest('.button-container').find(`#error-notification-${tutorId}`);
       errorNotification.show().text('An unexpected error occurred. Please try again.');
-      // Hide after 5 seconds
       setTimeout(() => {
         errorNotification.fadeOut();
       }, 5000);
@@ -70,38 +60,20 @@ function bookNow(tutorId, button) {
   });
 }
 
+
 function openEnquiryModal(tutorId, tutorName) {
   $('#tutorId').val(tutorId);
   $('#tutorName').text(tutorName);
   $('#enquiryModal').modal('show');
 }
 
-function filterTutors() {
-  const searchInput = document.getElementById('searchInput').value.toLowerCase().trim();
-  const tutorCards = document.querySelectorAll('.tutor-card');
 
-  tutorCards.forEach(card => {
-    const name = card.querySelector('.tutor-name').textContent.toLowerCase().trim();
-    const subject = card.querySelector('.tutor-subject').textContent.toLowerCase().trim();
-    const city = card.dataset.city ? card.dataset.city.toLowerCase().trim() : '';
-    const state = card.dataset.state ? card.dataset.state.toLowerCase().trim() : '';
-
-    if (name.includes(searchInput) || subject.includes(searchInput) || city.includes(searchInput) || state.includes(searchInput)) {
-      card.style.display = 'block';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-
-
-// Function to accept a booking
 function acceptBooking(bookingId) {
   fetch(window.location.href, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrftoken, // Include CSRF token
+      'X-CSRFToken': csrftoken,
     },
     body: new URLSearchParams({
       'booking_id': bookingId,
@@ -122,13 +94,13 @@ function acceptBooking(bookingId) {
   .catch(error => console.error('Error:', error));
 }
 
-// Function to decline a booking
+
 function declineBooking(bookingId) {
   fetch(window.location.href, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrftoken, // Include CSRF token
+      'X-CSRFToken': csrftoken,
     },
     body: new URLSearchParams({
       'booking_id': bookingId,
@@ -149,13 +121,13 @@ function declineBooking(bookingId) {
   .catch(error => console.error('Error:', error));
 }
 
-// Function to delete a notification
+
 function deleteNotification(id) {
   fetch(window.location.href, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'X-CSRFToken': csrftoken, // Include CSRF token
+      'X-CSRFToken': csrftoken,
     },
     body: new URLSearchParams({
       'booking_id': id,
@@ -167,7 +139,7 @@ function deleteNotification(id) {
     if (data.success) {
       const bookingRow = document.getElementById(`booking-${id}`);
       if (bookingRow) {
-        bookingRow.remove(); // Remove the booking row from the DOM
+        bookingRow.remove();
       }
     } else {
       console.error('Error:', data.error);
@@ -175,3 +147,51 @@ function deleteNotification(id) {
   })
   .catch(error => console.error('Error:', error));
 }
+
+document.getElementById('searchInput').addEventListener('keyup', function() {
+  const searchQuery = this.value.trim();
+  fetch(`/sthome/?q=${encodeURIComponent(searchQuery)}`, {
+    method: 'GET',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    const tutorGrid = document.getElementById('tutorGrid');
+    tutorGrid.innerHTML = '';
+    if (data.tutors.length > 0) {
+      data.tutors.forEach(tutor => {
+        const tutorCard = `
+          <div class="col-md-4 tutor-card" data-city="${tutor.city}" data-state="${tutor.state}">
+            <div class="card">
+              <center>
+                <img src="${tutor.profile_picture}" alt="${tutor.fullname}" class="tutor-img rounded-circle">
+              </center>
+              <h5 class="tutor-name">${tutor.fullname}</h5>
+              <p class="tutor-subject">${tutor.subjects_offered}</p>
+              <div class="button-container">
+                <button type="button" class="btn" onclick="bookNow(${tutor.id}, this)">Book Now</button>
+                <div id="notification-${tutor.id}" style="display: none; background-color: green; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                  <br>Booking request sent successfully!
+                </div>
+                <div id="error-notification-${tutor.id}" style="display: none; background-color: orange; color: white; border-radius: 5px; padding: 10px; margin-bottom: 15px;">
+                  <br>You have already booked this tutor.
+                </div>
+              </div>
+              <div class="button-container">
+                <button type="button" class="btn btn-enquiry" data-tutor-id="${tutor.id}" onclick="openEnquiryModal(${tutor.id}, '${tutor.fullname}')">Enquiry</button>
+              </div>
+            </div>
+          </div>`;
+        tutorGrid.innerHTML += tutorCard;
+      });
+    } else {
+      const noTutorsMessage = '<div style="text-align: center; color: white; font-weight: bold; font-size: 25px;">Tutors not found</div>';
+      tutorGrid.innerHTML = noTutorsMessage;
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+});

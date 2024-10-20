@@ -139,6 +139,10 @@ def tutorreg(request):
     return render(request, "registerationpages/Tutorregisterpage.html")
 
 
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import User, Student, Tutor
+
+
 def studenthomepage(request):
     user_id = request.session.get('user_id')
     user_type = request.session.get('user_type')
@@ -153,8 +157,17 @@ def studenthomepage(request):
         tutors = Tutor.objects.filter(state=student.state)
     tutors = tutors.distinct()[:9]
     current_tutors = Tutor.objects.filter(booking__student=student, booking__is_accepted=True).distinct()
-    context = { 'user': user, 'student_fullname': student.fullname, 'tutors': tutors, 'current_tutors': current_tutors }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        search_query = request.GET.get('q', '').strip()
+        filtered_tutors = Tutor.objects.filter(
+            Q(fullname__icontains=search_query) | Q(city__icontains=search_query) | Q(state__icontains=search_query) | Q(subjects_offered__icontains=search_query)
+        ).distinct()
+        tutor_list = [{'id': tutor.id, 'fullname': tutor.fullname, 'subjects_offered': tutor.subjects_offered, 'profile_picture': tutor.profile_picture.url, 'city': tutor.city, 'state': tutor.state} for tutor in filtered_tutors]
+        return JsonResponse({'tutors': tutor_list})
+    context = {'user': user, 'student_fullname': student.fullname, 'tutors': tutors, 'current_tutors': current_tutors}
     return render(request, "student/studenthome.html", context)
+
+
 
 
 def submit_enquiry(request):
@@ -360,9 +373,7 @@ def tutoreditprofile(request):
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('log')
-
     tutor = get_object_or_404(Tutor, uid=user_id)
-
     if request.method == 'POST':
         fullname = request.POST.get('fullname')
         phone = request.POST.get('phone')
@@ -376,8 +387,6 @@ def tutoreditprofile(request):
         availability = request.POST.get('availability')
         location_type = request.POST.get('location_type')
         profile_picture = request.FILES.get('profile_picture')
-
-        # Update tutor fields
         tutor.fullname = fullname
         tutor.phone = phone
         tutor.qualifications = qualifications
@@ -389,17 +398,13 @@ def tutoreditprofile(request):
         tutor.pincode = pincode
         tutor.availability = availability
         tutor.location_type = location_type
-
-        # Handle profile picture
         if profile_picture:
             tutor.profile_picture = profile_picture
         elif request.POST.get('remove_profile_picture') == 'yes':
             tutor.profile_picture = 'profile_pics/default_profile.jpg'  # Reset to default picture
-
         tutor.save()
         messages.success(request, 'Profile updated successfully!')
         return redirect('tutoreditprofile')
-
     context = {'tutor': tutor}
     return render(request, "tutor/tutor_editprofile.html", context)
 
