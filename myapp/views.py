@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import User, Student, Tutor, Admin, Enquiry, Booking
+from .models import User, Student, Tutor, Admin, Enquiry, Booking, StudentTutorRelation
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse, Http404
@@ -147,7 +147,7 @@ def studenthomepage(request):
     user_id = request.session.get('user_id')
     user_type = request.session.get('user_type')
     if not user_id or user_type != 'student':
-        return redirect('log')
+        return redirect('loginpage')
     user = get_object_or_404(User, id=user_id)
     student = get_object_or_404(Student, uid=user_id)
     tutors = Tutor.objects.filter(subjects_offered__icontains=student.subject)
@@ -209,7 +209,7 @@ def tutorhome(request):
     user_id = request.session.get('user_id')
     user_type = request.session.get('user_type')
     if not user_id or user_type != 'tutor':
-        return redirect('log')
+        return redirect('loginpage')
     user = get_object_or_404(User, id=user_id)
     tutor = get_object_or_404(Tutor, uid=user_id)
     context = { 'user': user, 'tutor_fullname': tutor.fullname, 'tutor_gender': tutor.gender, }
@@ -417,16 +417,16 @@ def tutor_notifications(request):
     if not tutor:
         return redirect('log')
     enquiries = Enquiry.objects.filter(tutor=tutor, tutor_x=False)
-    bookings = Booking.objects.filter(tutor=tutor, tutor_x=False, student_x=False)  # Added tutor_x filter
+    bookings = Booking.objects.filter(tutor=tutor, tutor_x=False, student_x=False)
     if request.method == 'POST':
         booking_id = request.POST.get('booking_id')
         action = request.POST.get('action')
-
         if booking_id and action in ['accept', 'decline']:
             try:
                 booking = Booking.objects.get(id=booking_id, tutor=tutor)
                 if action == 'accept':
                     booking.is_accepted = True
+                    StudentTutorRelation.objects.create(student=booking.student, tutor=tutor)
                 elif action == 'decline':
                     booking.is_rejected = True
                 booking.tutor_x = True
@@ -444,6 +444,7 @@ def tutor_notifications(request):
             except Enquiry.DoesNotExist:
                 return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
     return render(request, 'tutor/tutor_notifications.html', {'enquiries': enquiries, 'bookings': bookings})
+
 
 
 def reply_enquiry(request):
@@ -519,3 +520,19 @@ def tutorviewprofile(request):
         user = request.user
         tutor = get_object_or_404(Tutor, uid=user)
     return render(request, 'tutor/tutor_viewprofile.html', { 'tutor': tutor })
+
+def studenttutornav(request):
+    return render(request, "student/student_tutornav_header.html")
+
+
+def tutorstudentmystudents(request):
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'tutor':
+        return redirect('loginpage')
+    tutor = get_object_or_404(Tutor, uid__id=user_id)
+    student_tutor_relations = StudentTutorRelation.objects.filter(tutor=tutor, is_active=True)
+    return render(request, "tutor/tutor_student_mystudents.html", {
+        'student_tutor_relations': student_tutor_relations
+    })
+

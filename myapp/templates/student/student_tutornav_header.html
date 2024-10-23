@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/responsive.css' %}" rel="stylesheet" />
+<style>
+  /* CSS for dropdown on hover */
+  .quote_btn-container:hover .dropdown-menu {
+    display: block; /* Show the dropdown on hover */
+  }
+
+  .dropdown-menu {
+    display: none; /* Hide by default */
+    position: absolute; /* Position the dropdown */
+    z-index: 1000; /* Ensure it appears above other elements */
+    background-color: white; /* Optional: background color for the dropdown */
+    border: 1px solid #ddd; /* Optional: border for the dropdown */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+  }
+
+  .dropdown-item {
+    display: block; /* Make dropdown items block-level */
+    padding: 10px 15px; /* Padding for dropdown items */
+    color: #333; /* Color for dropdown items */
+    text-decoration: none; /* Remove underline from links */
+  }
+
+  .dropdown-item:hover {
+    background-color: #f1f1f1; /* Change background on hover */
+  }
+  .suggested_tutors_section {
+  padding: 50px 0;
+  background-color: #7235b7;
+  }
+
+  .rounded-input {
+    border-radius: 25px; /* Rounded edges for search input */
+    border: 1px solid #7235b7; /* Border color */
+    margin-bottom: 20px; /* Spacing below the input */
+  }
+
+  .tutor-card {
+    margin-bottom: 20px; /* Spacing between cards */
+  }
+
+  .card {
+    background-color: white; /* White background for the card */
+    border-radius: 15px; /* Rounded edges for the card */
+    padding: 20px; /* Padding inside the card */
+    text-align: center; /* Center text in the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for a subtle depth effect */
+  }
+
+  .tutor-img {
+    width: 100px; /* Fixed size for profile image */
+    height: 100px; /* Fixed size for profile image */
+    margin-bottom: 10px; /* Spacing below the image */
+  }
+
+  .tutor-name {
+    font-weight: bold; /* Bold name */
+  }
+
+  .button-container {
+    margin-top: 15px; /* Spacing above buttons */
+  }
+
+  .btn {
+      background-color: #7235b7; /* Button background color */
+      color: white; /* Button text color */
+      border: none; /* Remove default border */
+      border-radius: 25px; /* Rounded edges for buttons */
+      padding: 10px 15px; /* Padding inside buttons */
+      text-decoration: none; /* Remove underline */
+      display: inline-block; /* Align buttons side by side */
+      transition: background-color 0.3s; /* Smooth transition for background color */
+  }
+
+  .btn:hover {
+      background-color: #ff8c00; /* Dark orange background on hover */
+      color: white; /* Keep text color white on hover */
+  }
+
+  .btn-view-profile:hover {
+      background-color: orange !important;
+  }
+
+</style>
+</head>
+
+<body>
+  <div class="hero_area">
+
+    <!-- header section starts -->
+    <header class="header_section">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg custom_nav-container">
+          <a class="navbar-brand" href="index.html">
+            <span>
+              Tutorva
+            </span>
+          </a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class=""> </span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'studenthome' %}">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item active">
+                <a class="nav-link" href="#">Tutor</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'studentnotifications' %}">Notifications</a>
+              </li>
+            </ul>
+            <div class="quote_btn-container dropdown">
+              <a href="#" class="quote_btn dropdown-toggle" id="profileDropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                Profile
+              </a>
+              <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                <a class="dropdown-item" href="{% url 'studenteditprofile' %}">Edit Profile</a>
+                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    <!-- end header section -->
+
+
+  </div>
+
+  </div>
+  <!-- jQery -->
+  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+  <!-- popper js -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <!-- bootstrap js -->
+  <script src="{% static 'home/js/bootstrap.js' %}"></script>
+  <script src="{% static 'home/js/custom.js' %}"></script>
+  <!-- Google Map -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh39n5U-4IoWpsVGUHWdqB6puEkhRLdmI&callback=myMap"></script>
+  <!-- End Google Map -->
+</body>
+
+</html>

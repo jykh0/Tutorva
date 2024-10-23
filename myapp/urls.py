@@ -25,6 +25,9 @@ urlpatterns = [
     path('svp/', views.studentviewprofile, name='studentviewprofile'),
     path('tvp/', views.tutorviewprofile, name='tutorviewprofile'),
 
+    # october 20 2024
+    path('stn/', views.studenttutornav, name='tutornav'),
+    path('tsmys/', views.tutorstudentmystudents, name='tutormystudents'),
     # ---------------------other views------------------
     path('submit_enquiry/', views.submit_enquiry, name='submit_enquiry'),  # from students homepage
     path('reply_enquiry/', views.reply_enquiry, name='reply_enquiry'),  # from tutors notification page

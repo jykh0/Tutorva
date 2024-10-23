@@ -90,3 +90,13 @@ class Booking(models.Model):
         if self.is_rejected and self.rejection_time:
             return timezone.now() > self.rejection_time + timedelta(days=7)
         return True
+
+class StudentTutorRelation(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    ended_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.tutor.fullname}"
