@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import User, Student, Tutor, Admin, Enquiry, Booking, StudentTutorRelation
+from .models import User, Student, Tutor, Admin, Enquiry, Booking, StudentTutorRelation, Classroom
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse, Http404
@@ -194,7 +194,12 @@ def book_tutor(request):
             tutor = get_object_or_404(Tutor, id=tutor_id)
             existing_booking = Booking.objects.filter(student=student, tutor=tutor, is_rejected=False).first()
             if existing_booking:
-                return JsonResponse({'success': False, 'error': 'You have already booked this tutor.'})
+                if not existing_booking.is_accepted:
+                    existing_booking.delete()
+                    Booking.objects.create(student=student, tutor=tutor)
+                    return JsonResponse({'success': True, 'message': 'New booking request sent successfully.'})
+                else:
+                    return JsonResponse({'success': False, 'error': 'You have already booked this tutor.'})
             rejected_booking = Booking.objects.filter(student=student, tutor=tutor, is_rejected=True).first()
             if rejected_booking and not rejected_booking.can_rebook():
                 return JsonResponse({'success': False, 'error': 'You cannot rebook this tutor for another 7 days.'})
@@ -531,8 +536,55 @@ def tutorstudentmystudents(request):
     if not user_id or user_type != 'tutor':
         return redirect('loginpage')
     tutor = get_object_or_404(Tutor, uid__id=user_id)
+    if request.method == 'POST':
+        student_id = request.POST.get('student_id')
+        StudentTutorRelation.objects.filter(tutor=tutor, student_id=student_id).delete()
+        Booking.objects.filter(tutor=tutor, student_id=student_id).update(is_accepted=False)
+        return JsonResponse({'status': 'success'})
     student_tutor_relations = StudentTutorRelation.objects.filter(tutor=tutor, is_active=True)
     return render(request, "tutor/tutor_student_mystudents.html", {
         'student_tutor_relations': student_tutor_relations
     })
 
+def tutorstudentclassroom(request):
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'tutor':
+        return redirect('loginpage')
+    tutor = get_object_or_404(Tutor, uid__id=user_id)
+    students = Student.objects.filter(studenttutorrelation__tutor=tutor, studenttutorrelation__is_active=True)
+    classrooms = Classroom.objects.filter(tutor=tutor)
+    if request.method == 'POST' and request.POST.get('action') == 'create':
+        classroom_name = request.POST.get('name')
+        description = request.POST.get('description')
+        selected_students = request.POST.getlist('students')
+        Classroom.objects.create(tutor=tutor, name=classroom_name, description=description).students.set(selected_students)
+        request.session['success_message'] = 'Classroom created successfully.'
+        return redirect('tutorstudentclassroom')
+    success_message = request.session.pop('success_message', None)
+    return render(request, "tutor/tutor_student_classroom.html", {'students': students, 'classrooms': classrooms, 'success_message': success_message})
+
+
+def remove_student_from_classroom(request):
+    if request.method == 'POST':
+        classroom_id = request.POST.get('classroom_id')
+        student_id = request.POST.get('student_id')
+        classroom = get_object_or_404(Classroom, id=classroom_id)
+        student = get_object_or_404(Student, id=student_id)
+        classroom.students.remove(student)
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+def delete_classroom(request):
+    if request.method == 'POST':
+        classroom_id = request.POST.get('classroom_id')
+        classroom = get_object_or_404(Classroom, id=classroom_id)
+        classroom.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+
+
+
+def tutorstudentschedules(request):
+    return render(request, "tutor/tutor_student_schedules.html")

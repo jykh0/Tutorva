@@ -5,41 +5,40 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Another Page</title>
+  <title>My Students</title>
   <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
   <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
   <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <style>
+    .card { border-radius: 15px; overflow: hidden; }
+    .student-img { width: 150px; height: 150px; margin-top: 10px; }
+    .modal-content { border-radius: 15px; }
+    #messageBox { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: red; color: white; padding: 15px; border-radius: 15px; font-size: 16px; display: none; }
+    .hidden { display: none; }
+  </style>
 </head>
-<style>
-  .card {
-  border-radius: 15px; /* Curved edges */
-  overflow: hidden; /* Ensure the image fits within the card */
-}
-
-</style>
 <body>
- {% include 'tutor/tutor_studentnav_header.html' %}
-
+{% include 'tutor/tutor_studentnav_header.html' %} <br><br>
 <section class="students_section layout_padding" style="padding: 10px;">
   <div class="container">
     <div class="heading_container">
-      <h2 style="color: white; font-size: 25px;">My Students</h2><br>
+      <h2 style="color: white; font-size: 40px;">My Students</h2><br>
     </div>
     <div class="row" id="studentGrid">
       {% for relation in student_tutor_relations %}
-      <div class="col-md-4 student-card">
-        <div class="card" style="border-radius: 15px; padding: 15px;"> <!-- Added padding to the card -->
+      <div class="col-md-4 student-card" id="student-{{ relation.student.id }}">
+        <div class="card" style="border-radius: 15px; padding: 15px;">
           <center>
-            <img src="{{ relation.student.profile_picture.url }}" alt="{{ relation.student.fullname }}" class="student-img rounded-circle mb-3" style="width: 150px; height: 150px; margin-top: 10px;"> <!-- Added margin-top to create space above the image -->
+            <img src="{{ relation.student.profile_picture.url }}" alt="{{ relation.student.fullname }}" class="student-img rounded-circle mb-3">
           </center>
           <h5 class="student-name text-center">{{ relation.student.fullname }}</h5>
           <p class="student-subject text-center">{{ relation.student.subject }}</p>
-          <p class="student-phone text-center mb-1">Phone: {{ relation.student.phone }}</p> <!-- Reduced margin below -->
-          <p class="student-level text-center mb-1">Level: {{ relation.student.level }}</p> <!-- Reduced margin below -->
-          <p class="student-street text-center mb-1">Street: {{ relation.student.street }}</p> <!-- Reduced margin below -->
-          <p class="student-city text-center mb-3">City: {{ relation.student.city }}</p> <!-- Reduced margin below -->
+          <p class="student-phone text-center mb-1">Phone: {{ relation.student.phone }}</p>
+          <p class="student-level text-center mb-1">Level: {{ relation.student.level }}</p>
+          <p class="student-street text-center mb-1">Street: {{ relation.student.street }}</p>
+          <p class="student-city text-center mb-3">City: {{ relation.student.city }}</p>
           <div class="button-container text-center">
-            <button type="button" class="btn btn-remove" onclick="removeStudent({{ relation.student.id }})" style="background-color: #7235b7; color: white; transition: background-color 0.3s;">
+            <button type="button" class="btn btn-remove" data-student-id="{{ relation.student.id }}" style="background-color: #7235b7; color: white; transition: background-color 0.3s;">
               Remove
             </button>
           </div>
@@ -50,12 +49,56 @@
   </div>
 </section>
 
-
-
+<div class="modal" id="confirmModal">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <p>Are you sure you want to remove this student?</p>
+        <button type="button" class="btn btn-danger" id="confirmRemove">Yes</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-  <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
-  <script src="{% static 'home/js/bootstrap.js' %}"></script>
+<div id="messageBox" class="hidden"></div>
+
+<script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="{% static 'home/js/bootstrap.js' %}"></script>
+<script>
+$(document).ready(function() {
+  let studentIdToRemove = null;
+
+  $('.btn-remove').click(function() {
+    studentIdToRemove = $(this).data('student-id');
+    $('#confirmModal').modal('show');
+  });
+
+  $('#confirmRemove').click(function() {
+    $.ajax({
+      url: '{% url "tutormystudents" %}',
+      method: 'POST',
+      data: {
+        student_id: studentIdToRemove,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+      },
+      success: function(response) {
+        $('#student-' + studentIdToRemove).remove();
+        $('#confirmModal').modal('hide');
+        showMessage('Student removed successfully.');
+      }
+    });
+  });
+});
+
+function showMessage(message) {
+  $('#messageBox').text(message).fadeIn();
+  setTimeout(function() {
+    $('#messageBox').fadeOut();
+  }, 3000);
+}
+</script>
 </body>
 </html>
+

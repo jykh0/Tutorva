@@ -1,0 +1,5 @@
+.card { border-radius: 15px; overflow: hidden; }
+.student-img { width: 150px; height: 150px; margin-top: 10px; }
+.modal-content { border-radius: 15px; }
+#messageBox { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: red; color: white; padding: 15px; border-radius: 15px; font-size: 16px; display: none; }
+.hidden { display: none; }

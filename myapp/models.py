@@ -100,3 +100,13 @@ class StudentTutorRelation(models.Model):
 
     def __str__(self):
         return f"{self.student.fullname} - {self.tutor.fullname}"
+
+class Classroom(models.Model):
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE)
+    name = models.CharField("Classroom Name", max_length=100)
+    description = models.TextField("Classroom Description", blank=True, null=True)
+    students = models.ManyToManyField(Student, related_name='classrooms')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

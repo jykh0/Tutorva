@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Create Classroom</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+</head>
+<body>
+{% include 'tutor/tutor_studentnav_header.html' %}<br><br>
+<section class="classroom_section layout_padding" style="padding: 10px;">
+  <div class="container">
+    <div class="heading_container">
+      <h2 style="color: white; font-size: 40px;">Create Classroom</h2><br>
+    </div>
+    {% if success_message %}
+      <div class="alert alert-success" style="color: white; background-color: green;">{{ success_message }}</div>
+    {% endif %}
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create">
+      <div class="form-group">
+        <label for="name" style="color: white;">Classroom Name</label>
+        <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label for="description" style="color: white;">Classroom Description</label>
+        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+      </div>
+      <div class="students_list">
+        <h6 style="color: white; font-size: 20px;" onclick="toggleStudentList()">Select Students <span style="font-size: 20px; cursor: pointer;">▼</span></h6>
+        <ul id="studentList" class="list-group" style="display: none;">
+          {% for student in students %}
+          <li class="list-group-item d-flex justify-content-between align-items-center" id="student-{{ student.id }}">
+            <div class="student-info">
+              <img src="{{ student.profile_picture.url }}" alt="profile" class="rounded-circle" width="50" height="50">
+              <span class="ml-3" style="color: black;">{{ student.fullname }}</span>
+              <a href="{% url 'studentviewprofile' %}?id={{ student.id }}" class="btn btn-orange ml-2" style="background-color: orange; color: white;">View Profile</a>
+            </div>
+            <input type="checkbox" name="students" value="{{ student.id }}" style="width: 20px; height: 20px;">
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <br>
+      <button type="submit" class="btn" style="background-color: orange; color: white;">Create Classroom</button>
+    </form>
+  </div>
+</section><br><br>
+
+<br><br>
+<section class="classroom_section layout_padding" style="padding: 10px;">
+  <div class="container">
+    <h2 style="color: white; font-size: 40px; font-weight: bold;">Your Classrooms</h2>
+    {% if classrooms.count == 0 %}
+      <div style="color: white; text-align: center;">No classrooms yet.</div>
+    {% else %}
+      {% for classroom in classrooms %}
+      <div class="classroom-item list-group-item d-flex justify-content-between align-items-center" style="margin-top: 15px;" id="classroom-{{ classroom.id }}">
+        <div>
+          <h5 style="color: black;">{{ classroom.name }}</h5>
+          <p style="color: black;">{{ classroom.description }}</p>
+          <p style="color: black;">Total Students: {{ classroom.students.count }}</p>
+        </div>
+        <div>
+          <button onclick="toggleEditClassroom({{ classroom.id }})" class="btn btn-orange" style="background-color: orange; color: white;">
+            <i class="fa fa-pencil"></i>
+          </button>
+        </div>
+      </div>
+      <div id="editClassroom{{ classroom.id }}" class="edit-section" style="display: none; background-color: lightgrey; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
+        <ul class="list-group">
+          <h6>Students:</h6>
+          {% for student in classroom.students.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center" id="classroom-{{ classroom.id }}-student-{{ student.id }}">
+            <span style="color: black;">{{ student.fullname }}</span>
+            <button onclick="removeStudent({{ classroom.id }}, {{ student.id }})" class="btn btn-danger btn-sm">Remove</button>
+          </li>
+          {% endfor %}
+        </ul>
+        <br>
+        <button onclick="deleteClassroom({{ classroom.id }})" class="btn btn-danger">Delete Classroom</button>
+      </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</section>
+<script>
+function toggleStudentList() {
+  var studentList = document.getElementById("studentList");
+  studentList.style.display = studentList.style.display === "none" ? "block" : "none";
+}
+function toggleEditClassroom(classroomId) {
+  var editSection = document.getElementById('editClassroom' + classroomId);
+  editSection.style.display = editSection.style.display === 'none' ? 'block' : 'none';
+}
+function removeStudent(classroomId, studentId) {
+  $.ajax({
+    url: "{% url 'remove_student_from_classroom' %}",
+    method: "POST",
+    data: { 'classroom_id': classroomId, 'student_id': studentId, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+    success: function(response) {
+      if (response.success) {
+        $("#classroom-" + classroomId + "-student-" + studentId).remove();
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("Error removing student:", error);
+    }
+  });
+}
+function deleteClassroom(classroomId) {
+  $.ajax({
+    url: "{% url 'delete_classroom' %}",
+    method: "POST",
+    data: { 'classroom_id': classroomId, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+    success: function(response) {
+      if (response.success) {
+        $("#classroom-" + classroomId).remove();
+        $("#editClassroom" + classroomId).remove();
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("Error deleting classroom:", error);
+    }
+  });
+}
+function fadeOutSuccessMessage() {
+  var successMessage = document.querySelector('.alert-success');
+  if (successMessage) {
+    setTimeout(function() {
+      successMessage.style.transition = "opacity 0.5s";
+      successMessage.style.opacity = 0;
+      setTimeout(function() {
+        successMessage.remove();
+      }, 500);
+    }, 3000);
+  }
+}
+fadeOutSuccessMessage();
+</script>
+<script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="{% static 'home/js/bootstrap.js' %}"></script>
+</body>
+</html>

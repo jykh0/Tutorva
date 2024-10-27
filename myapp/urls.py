@@ -23,14 +23,19 @@ urlpatterns = [
     path('tunoti/', views.tutor_notifications, name='tutornotifications'),
     path('stnoti/', views.studentnotifications, name='studentnotifications'),
     path('svp/', views.studentviewprofile, name='studentviewprofile'),
+
     path('tvp/', views.tutorviewprofile, name='tutorviewprofile'),
 
     # october 20 2024
     path('stn/', views.studenttutornav, name='tutornav'),
     path('tsmys/', views.tutorstudentmystudents, name='tutormystudents'),
+    path('tsc/', views.tutorstudentclassroom, name='tutorstudentclassroom'),
+    path('tss/', views.tutorstudentschedules, name='tutorstudentschedules'),
     # ---------------------other views------------------
     path('submit_enquiry/', views.submit_enquiry, name='submit_enquiry'),  # from students homepage
     path('reply_enquiry/', views.reply_enquiry, name='reply_enquiry'),  # from tutors notification page
     path('book-tutor/', views.book_tutor, name='book-tutor'),  # from students homepage,studentsnoti deletebooking noti
     path('delete-booking-notification/', views.delete_booking_notification, name='delete_booking_notification'),
+    path('tutor/classroom/remove_student/', views.remove_student_from_classroom, name='remove_student_from_classroom'),
+    path('tutor/classroom/delete/', views.delete_classroom, name='delete_classroom'),
 ]

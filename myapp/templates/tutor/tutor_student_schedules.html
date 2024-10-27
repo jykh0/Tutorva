@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>My Students</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
+  <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
+  <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+
+</head>
+<body>
+{% include 'tutor/tutor_studentnav_header.html' %} <br><br>
+<section class="students_section layout_padding" style="padding: 10px;">
+  <div class="container">
+    <div class="heading_container">
+      <h2 style="color: white; font-size: 40px;">Schedule now!</h2><br>
+    </div>
+  </div>
+</section>
+
+
+<script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="{% static 'home/js/bootstrap.js' %}"></script>
+</body>
+</html>
+
