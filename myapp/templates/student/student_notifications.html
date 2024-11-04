@@ -98,6 +98,59 @@
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   }
 
+  body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+  }
+  .notification-section {
+    background-color: #7235b7;
+    padding: 30px 0;
+    margin-bottom: 20px;
+  }
+  .notification-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .notification-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+  }
+  .notification-card:hover {
+    transform: translateY(-5px);
+  }
+  .notification-card h5 {
+    color: #7235b7;
+    margin-bottom: 10px;
+  }
+  .notification-card p {
+    color: #333;
+    margin-bottom: 5px;
+  }
+  .btn-action {
+    background-color: #7235b7;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+  }
+  .btn-action:hover {
+    background-color: #5a2a94;
+  }
+  .no-notifications {
+    color: white;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
 
 </style>
 </head>
@@ -146,70 +199,88 @@
     <!-- end header section -->
 
     <!-- Greeting Section -->
-    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
-      <h1 style="color: white; font-weight: bold; font-size: 48px;">Notifications</h1>
+    <section style="text-align: center; padding: 30px; background-color: #7235b7;">
+      <h1 style="color: white; font-weight: bold; font-size: 36px;">Notifications</h1>
     </section>
 
-<!-- Enquiries Section -->
-<div class="enquiries_section" style="background-color: #7235b7; padding: 50px 0;">
-    <div class="container">
-        <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: white;">Enquiries</h2>
+    <!-- After the Greeting Section -->
+    {% if not sessions and not enquiries.exists and not bookings.exists %}
+    <div class="container mt-5">
+      <div class="card">
+        <div class="card-body text-center">
+          <i class="fa fa-bell-o fa-3x mb-3" style="color: #6c757d;"></i>
+          <h4>No Notifications</h4>
+          <p class="text-muted">You don't have any notifications at the moment.</p>
         </div>
-        <div class="enquiries-list">
-            {% if enquiries.exists %}
-                {% for enquiry in enquiries %}
-                    <div class="enquiry-row" id="enquiry-{{ enquiry.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-                        <h5 style="font-size: 20px; font-weight: bold;">From Tutor: {{ enquiry.tutor.fullname }}</h5>
-                        <p style="color: #666; font-size: 16px;"><strong>{{ enquiry.response }}</strong></p>
-                        <div class="button-container" style="text-align: right;">
-                            <a href="{% url 'tutorviewprofile' %}?id={{ enquiry.tutor.id }}" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
-                            <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteNotification({{ enquiry.id }})">X</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: white;">No enquiries available.</p>
-            {% endif %}
-        </div>
+      </div>
     </div>
-</div>
-
-
-
-<!-- Booking Notifications Section -->
-<div class="booking_notifications_section" style="background-color: #7235b7; padding: 50px 0;">
-    <div class="container">
-        <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
-            <h2 style="color: white;">Booking Notifications</h2>
+    {% else %}
+      <!-- Dynamic Sections -->
+      {% if sessions %}
+      <div class="notification-section">
+        <div class="notification-container">
+          {% for session in sessions %}
+            <div class="notification-card" id="session-{{ session.id }}">
+              <h5>
+                  {% if session.mode == 'online' %}
+                      Online Session
+                  {% else %}
+                      Offline Session
+                  {% endif %}
+              </h5>
+              <p><strong>Date:</strong> {{ session.date }}</p>
+              <p><strong>Time:</strong> {{ session.start_time }} - {{ session.end_time }}</p>
+              <p><strong>Duration:</strong> {{ session.duration }}</p>
+              {% if session.mode == 'online' %}
+                  <a href="{{ session.link }}" target="_blank" class="btn-action">Join Session</a>
+              {% else %}
+                  <p><strong>Location:</strong> {{ session.location }}</p>
+              {% endif %}
+            </div>
+          {% endfor %}
         </div>
-        <div class="booking-notifications-list">
-            {% if bookings.exists %}
-                {% for booking in bookings %}
-                    <div class="booking-row" id="booking-{{ booking.id }}" style="background-color: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);">
-                        <h5 style="font-size: 20px; font-weight: bold;">Booking with Tutor: {{ booking.tutor.fullname }}</h5>
-                        <p style="color: #666; font-size: 16px;">
-                            {% if booking.is_accepted %}
-                                <strong>Status: Accepted</strong>
-                            {% elif booking.is_rejected %}
-                                <strong>Status: Rejected</strong>
-                            {% else %}
-                                <strong>Status: Pending</strong>
-                            {% endif %}
-                        </p>
-                        <div class="button-container" style="text-align: right;">
-                            <a href="{% url 'tutorviewprofile' %}?id={{ booking.tutor.id }}" class="btn-view-profile" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none; margin-right: 10px;">View Tutor</a>
-                            <a href="#" class="btn-clear" style="background-color: orange; color: white; border-radius: 20px; padding: 10px 20px; text-decoration: none;" onclick="deleteBookingNotification({{ booking.id }})">X</a>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: white;">No booking notifications available.</p>
-            {% endif %}
-        </div>
-    </div>
-</div>
+      </div>
+      {% endif %}
 
+      {% if enquiries.exists %}
+      <div class="notification-section">
+        <div class="notification-container">
+          {% for enquiry in enquiries %}
+            <div class="notification-card" id="enquiry-{{ enquiry.id }}">
+              <h5>From Tutor: {{ enquiry.tutor.fullname }}</h5>
+              <p>{{ enquiry.response }}</p>
+              <a href="{% url 'tutorviewprofile' %}?id={{ enquiry.tutor.id }}" class="btn-action">View Tutor</a>
+              <button onclick="deleteNotification({{ enquiry.id }})" class="btn-action">Clear</button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if bookings.exists %}
+      <div class="notification-section">
+        <div class="notification-container">
+          {% for booking in bookings %}
+            <div class="notification-card" id="booking-{{ booking.id }}">
+              <h5>Booking with Tutor: {{ booking.tutor.fullname }}</h5>
+              <p>
+                  <strong>Status:</strong>
+                  {% if booking.is_accepted %}
+                      Accepted
+                  {% elif booking.is_rejected %}
+                      Rejected
+                  {% else %}
+                      Pending
+                  {% endif %}
+              </p>
+              <a href="{% url 'tutorviewprofile' %}?id={{ booking.tutor.id }}" class="btn-action">View Tutor</a>
+              <button onclick="deleteBookingNotification({{ booking.id }})" class="btn-action">Clear</button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    {% endif %}
 
   </div>
 <script>
@@ -298,10 +369,6 @@ function getCookie(name) {
     return cookieValue;
 }
 </script>
-
-
-
-
 
   <script src="{% static 'home/js/jquery-3.4.1.min.js' %}"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">

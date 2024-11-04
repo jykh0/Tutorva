@@ -18,7 +18,6 @@
   .quote_btn-container:hover .dropdown-menu {
     display: block; /* Show the dropdown on hover */
   }
-
   .dropdown-menu {
     display: none; /* Hide by default */
     position: absolute; /* Position the dropdown */
@@ -28,132 +27,135 @@
     padding: 0; /* Remove default padding */
     margin: 0; /* Remove default margin */
   }
-
   .dropdown-item {
     display: block; /* Make dropdown items block-level */
     padding: 10px 15px; /* Padding for dropdown items */
     color: #333; /* Color for dropdown items */
     text-decoration: none; /* Remove underline from links */
   }
-
   .dropdown-item:hover {
     background-color: #f1f1f1; /* Change background on hover */
   }
 
-
-    /* Profile Edit Section Styles */
   .profile_edit_section {
-    background-color: #7235b7; /* Updated background color */
-    padding: 50px 0;
-    text-align: center;
+    background-color: #7235b7;
+    padding-top: 20px;
+    padding-bottom: 30px;
   }
-
   .form-container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     background-color: #fff;
     padding: 30px;
-    border-radius: 10px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   }
-
   .profile-pic-container {
     position: relative;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
-
   .profile-pic {
-    width: 150px;
-    height: 150px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     object-fit: cover;
     display: block;
     margin: 0 auto;
-    border: 5px solid white;
+    border: 4px solid #7235b7;
   }
-
   .edit-icon-container {
     position: absolute;
     bottom: 0;
-    right: 20px;
+    right: calc(50% - 70px);
   }
 
   .edit-icon {
     color: white;
-    background-color: orange;
+    background-color: #FFA500;
     padding: 8px;
     border-radius: 50%;
     cursor: pointer;
+    transition: background-color 0.3s;
   }
 
-  .pic-options {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 50px;
-    right: 0;
+  .edit-icon:hover {
+    background-color: #FF8C00;
   }
 
-  .upload-pic-input {
-    display: none;
-  }
-
-  .upload-pic-btn, .remove-pic-btn {
-    background-color: orange;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    margin: 5px 0;
-    cursor: pointer;
-  }
-
-  .upload-pic-btn:hover, .remove-pic-btn:hover {
-    background-color: darkorange;
-  }
-
-  /* Form Styles */
   .form-group {
-    margin-bottom: 20px;
-    text-align: left;
+    margin-bottom: 15px;
   }
 
   .form-group label {
-    color: #7235b7; /* Updated label color */
-    display: block;
+    color: #7235b7;
+    font-weight: bold;
     margin-bottom: 5px;
+    display: block;
   }
 
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 10px;
+  .form-control {
+    border: 1px solid #ddd;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    padding: 8px 12px;
+    transition: border-color 0.3s;
+  }
+
+  .form-control:focus {
+    border-color: #7235b7;
+    box-shadow: 0 0 0 0.2rem rgba(114, 53, 183, 0.25);
   }
 
   .btn-orange {
-    background-color: orange;
+    background-color: #FFA500;
     color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: bold;
+    width: 100%;
   }
 
   .btn-orange:hover {
-    background-color: darkorange;
+    background-color: #FF8C00;
   }
 
-  .pic-options {
-    display: none; /* Initially hide the options */
-    position: absolute; /* Positioning if needed */
-    background-color: white; /* Background color for visibility */
-    border: 1px solid #ccc; /* Optional border */
-    z-index: 1000; /* Ensure it's on top */
+  .error-message {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 5px;
   }
-    .error-message {
-    color: red; /* Error message color */
-    font-size: 0.875em; /* Smaller font size */
-    margin-top: 5px; /* Space above error message */
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .form-container {
+      padding: 20px;
+    }
+  }
+
+  .greeting-section {
+    background-color: #7235b7;
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  .greeting-section h1 {
+    color: white;
+    font-weight: bold;
+    font-size: 36px;
+    margin: 0;
+  }
+
+  .success-message {
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out;
   }
 
 </style>
@@ -181,7 +183,7 @@
                 <a class="nav-link" href="{% url 'tutorhome' %}">Home</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Students</a>
+                <a class="nav-link" href="{% url 'tutormystudents' %}">Students</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'tutornotifications' %}">Notifications</a>
@@ -203,13 +205,14 @@
     <!-- end header section -->
 
         <!-- Greeting Section -->
-    <section style="text-align: center; padding: 50px; background-color: #7235b7;">
-      <h1 style="color: white; font-weight: bold; font-size: 48px;">
-        Edit your profile here!
-      </h1>
+    <section class="greeting-section">
+      <h1>Edit your profile here!</h1>
     </section>
 
-
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message" style="display: none;">
+      Profile updated successfully!
+    </div>
 
 <!-- Profile Edit Section -->
 <section class="profile_edit_section">
@@ -236,15 +239,21 @@
       </div>
 
 
-        <div class="form-group">
-          <label for="fullname">Full Name</label>
-          <input type="text" id="fullname" name="fullname" value="{{ tutor.fullname }}" class="form-control" required>
-          <div id="fullnameError" class="error-message"></div>
-        </div>
-        <div class="form-group">
-          <label for="phone">Phone</label>
-          <input type="text" id="phone" name="phone" value="{{ tutor.phone }}" class="form-control" required>
-          <div id="phoneError" class="error-message"></div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="fullname">Full Name</label>
+              <input type="text" id="fullname" name="fullname" value="{{ tutor.fullname }}" class="form-control" required>
+              <div id="fullnameError" class="error-message"></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="phone">Phone</label>
+              <input type="text" id="phone" name="phone" value="{{ tutor.phone }}" class="form-control" required>
+              <div id="phoneError" class="error-message"></div>
+            </div>
+          </div>
         </div>
         <div class="form-group">
           <label for="qualifications">Qualifications</label>
@@ -453,6 +462,27 @@
 
       return isFullNameValid && isPhoneValid && isQualificationsValid && isSubjectsValid && isStreetValid && isCityValid && isStateValid && isPincodeValid;
   }
+
+  function showSuccessMessage() {
+    const successMessage = document.getElementById('successMessage');
+    successMessage.style.display = 'block';
+    successMessage.style.opacity = '1';
+    setTimeout(() => {
+      successMessage.style.opacity = '0';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 500);
+    }, 500);
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          showSuccessMessage();
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  });
 
   // Add event listeners for live validation
   document.getElementById("fullname").addEventListener("input", validateFullName);

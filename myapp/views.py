@@ -1,13 +1,18 @@
 from django.shortcuts import render,redirect, get_object_or_404
-from .models import User, Student, Tutor, Admin, Enquiry, Booking, StudentTutorRelation, Classroom
+from .models import User, Student, Tutor, Admin, Enquiry, Booking, StudentTutorRelation, Classroom, ScheduleSession, Attendance
 from django.db.models import Q
 from django.contrib.auth.hashers import make_password, check_password
 from django.http import HttpResponse, JsonResponse, Http404
+from django.utils.dateparse import parse_date, parse_time
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 import json
+from django.views.decorators.http import require_http_methods, require_POST
+from django.db import IntegrityError
+from django.utils import timezone
+from datetime import timedelta, datetime, date
 
 from . import views
 
@@ -483,10 +488,20 @@ def studentnotifications(request):
             return JsonResponse({'success': True})
         except Enquiry.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Enquiry not found.'})
+    sessions = ScheduleSession.objects.filter(
+        classroom__students=student,
+        notification_sent=True,
+        is_completed=False,
+        date__gte=timezone.now().date()
+    ).order_by('date', 'start_time')
     enquiries = Enquiry.objects.filter(student=student, status='answered', student_x=False)
-    bookings = Booking.objects.filter(student=student, student_x=False)  # Only show bookings where student_x is False
-
+    bookings = Booking.objects.filter(student=student, student_x=False)
+    for session in sessions:
+        start_datetime = datetime.combine(date.today(), session.start_time)
+        end_datetime = datetime.combine(date.today(), session.end_time)
+        session.duration = end_datetime - start_datetime
     context = {
+        'sessions': sessions,
         'enquiries': enquiries,
         'bookings': bookings,
     }
@@ -585,6 +600,124 @@ def delete_classroom(request):
 
 
 
-
 def tutorstudentschedules(request):
-    return render(request, "tutor/tutor_student_schedules.html")
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'tutor': return redirect('loginpage')
+    tutor = get_object_or_404(Tutor, uid=user_id)
+    classrooms = Classroom.objects.filter(tutor=tutor)
+    if request.method == 'POST':
+        if request.POST.get('action') == 'delete_session':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor, notification_sent=False)
+                session.delete()
+                return JsonResponse({'success': True})
+            except ScheduleSession.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Session not found or notification already sent.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+        elif request.POST.get('action') == 'mark_complete':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor)
+                session.is_completed = True
+                session.save()
+                return JsonResponse({'success': True})
+            except ScheduleSession.DoesNotExist: return JsonResponse({'success': False, 'error': 'Session not found.'})
+            except Exception as e: return JsonResponse({'success': False, 'error': str(e)})
+        elif request.POST.get('action') == 'send_notification':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor)
+                if not session.notification_sent:
+                    session.notification_sent = True
+                    session.save()
+                    return JsonResponse({'success': True, 'message': 'Notification sent successfully!'})
+                else:
+                    return JsonResponse({'success': False, 'error': 'Notification already sent.'})
+            except ScheduleSession.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Session not found.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'error': str(e)})
+        else:
+            try:
+                classroom = Classroom.objects.get(id=request.POST.get('classroom'), tutor=tutor)
+                ScheduleSession.objects.create(
+                    classroom=classroom,
+                    date=parse_date(request.POST.get('date')),
+                    start_time=parse_time(request.POST.get('startTime')),
+                    end_time=parse_time(request.POST.get('endTime')),
+                    mode=request.POST.get('mode'),
+                    link=request.POST.get('link') if request.POST.get('mode') == 'online' else None,
+                    location=request.POST.get('location') if request.POST.get('mode') == 'offline' else None
+                )
+                return JsonResponse({'success': True})
+            except IntegrityError: return JsonResponse({'success': False, 'error': 'This session already exists.'})
+            except Exception as e: return JsonResponse({'success': False, 'error': str(e)})
+    scheduled_sessions = ScheduleSession.objects.filter(
+        classroom__tutor=tutor,
+        is_completed=False
+    ).order_by('date', 'start_time')
+    context = {'classrooms': classrooms, 'scheduled_sessions': scheduled_sessions}
+    return render(request, "tutor/tutor_student_schedules.html", context)
+
+def tutorstudentreporting(request):
+    user_id = request.session.get('user_id')
+    user_type = request.session.get('user_type')
+    if not user_id or user_type != 'tutor': return redirect('loginpage')
+    tutor = get_object_or_404(Tutor, uid=user_id)
+    if request.method == 'POST':
+        if request.POST.get('action') == 'submit_attendance':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor, is_completed=True)
+                attendance_data = json.loads(request.POST.get('attendance_data'))
+                
+                for data in attendance_data:
+                    student = Student.objects.get(id=data['student_id'])
+                    Attendance.objects.create(
+                        session=session,
+                        student=student,
+                        is_present=data['is_present'],
+                        remarks=data['remarks'],
+                        marked_by=tutor
+                    )
+                return JsonResponse({'success': True})
+            except ScheduleSession.DoesNotExist: return JsonResponse({'success': False, 'error': 'Session not found.'})
+            except Exception as e: return JsonResponse({'success': False, 'error': str(e)})
+        if request.POST.get('action') == 'mark_complete':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor)
+                session.is_completed = True
+                session.save()
+                return JsonResponse({'success': True})
+            except ScheduleSession.DoesNotExist: return JsonResponse({'success': False, 'error': 'Session not found.'})
+            except Exception as e: return JsonResponse({'success': False, 'error': str(e)})
+        elif request.POST.get('action') == 'send_notification':
+            session_id = request.POST.get('session_id')
+            try:
+                session = ScheduleSession.objects.get(id=session_id, classroom__tutor=tutor)
+                if not session.notification_sent:
+                    session.notification_sent = True
+                    session.save()
+                    return JsonResponse({'success': True})
+                return JsonResponse({'success': False, 'error': 'Notification already sent.'})
+            except ScheduleSession.DoesNotExist: return JsonResponse({'success': False, 'error': 'Session not found.'})
+            except Exception as e: return JsonResponse({'success': False, 'error': str(e)})
+    active_sessions = ScheduleSession.objects.filter(
+        classroom__tutor=tutor, 
+        is_completed=False,
+        notification_sent=True
+    ).order_by('date', 'start_time')
+    completed_sessions = ScheduleSession.objects.filter(
+        classroom__tutor=tutor,
+        is_completed=True
+    ).exclude(
+        id__in=Attendance.objects.values_list('session_id', flat=True)
+    ).order_by('-date', '-start_time')
+    return render(request, "tutor/tutor_student_reporting.html", {
+        'active_sessions': active_sessions,
+        'completed_sessions': completed_sessions
+    })

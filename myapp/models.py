@@ -110,3 +110,34 @@ class Classroom(models.Model):
 
     def __str__(self):
         return self.name
+
+class ScheduleSession(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='sessions')
+    date = models.DateField("Session Date")
+    start_time = models.TimeField("Start Time")
+    end_time = models.TimeField("End Time")
+    link = models.URLField("Session Link", blank=True, null=True)
+    location = models.TextField("Offline Location", blank=True, null=True)
+    mode = models.CharField("Session Mode", max_length=10, choices=(
+        ('online', 'Online'),
+        ('offline', 'Offline')
+    ))
+    notification_sent = models.BooleanField("Notification Sent", default=False)
+    is_completed = models.BooleanField("Session Completed", default=False)
+
+    def __str__(self):
+        return f"{self.classroom.name} - {self.date} {self.start_time}"
+
+class Attendance(models.Model):
+    session = models.ForeignKey(ScheduleSession, on_delete=models.CASCADE, related_name='attendances')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    is_present = models.BooleanField("Present", default=False)
+    remarks = models.TextField("Remarks", blank=True, null=True)
+    marked_at = models.DateTimeField(auto_now_add=True)
+    marked_by = models.ForeignKey(Tutor, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ['session', 'student']
+
+    def __str__(self):
+        return f"{self.student.fullname} - {self.session} - {'Present' if self.is_present else 'Absent'}"

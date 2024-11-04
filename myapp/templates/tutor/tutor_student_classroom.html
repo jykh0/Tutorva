@@ -9,83 +9,98 @@
   <link rel="stylesheet" type="text/css" href="{% static 'home/css/bootstrap.css' %}" />
   <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
   <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
+  <style>
+    .form-control, .btn { border-radius: 20px; }
+    .card { border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); height: 100%; display: flex; flex-direction: column; }
+    .card-body { padding: 30px; flex-grow: 1; }
+    label { font-weight: bold; color: #555; }
+    .edit-section { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+    .edit-section.show { max-height: 1000px; }
+  </style>
 </head>
-<body>
+<body style="background-color: #f4f4f4;">
 {% include 'tutor/tutor_studentnav_header.html' %}<br><br>
-<section class="classroom_section layout_padding" style="padding: 10px;">
+<section class="classroom_section layout_padding" style="padding: 20px;">
   <div class="container">
-    <div class="heading_container">
-      <h2 style="color: white; font-size: 40px;">Create Classroom</h2><br>
+    <div class="heading_container" style="text-align: center; margin-bottom: 30px;">
+      <h2 style="color: white; font-size: 40px; font-weight: bold;">Create Classroom</h2>
     </div>
     {% if success_message %}
-      <div class="alert alert-success" style="color: white; background-color: green;">{{ success_message }}</div>
+      <div class="alert alert-success" style="color: white; background-color: green; border-radius: 20px;">{{ success_message }}</div>
     {% endif %}
-    <form method="POST">
-      {% csrf_token %}
-      <input type="hidden" name="action" value="create">
-      <div class="form-group">
-        <label for="name" style="color: white;">Classroom Name</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card" style="background-color: #fff;">
+          <div class="card-body">
+            <form method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="create">
+              <div class="form-group">
+                <label for="name">Classroom Name</label>
+                <input type="text" class="form-control" id="name" name="name" required style="background-color: #f8f9fa;">
+              </div>
+              <div class="form-group">
+                <label for="description">Classroom Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" style="background-color: #f8f9fa;"></textarea>
+              </div>
+              <div class="form-group">
+                <h6 style="color: #555; font-size: 18px; cursor: pointer;" onclick="toggleStudentList()">Select Students <span style="font-size: 20px;">▼</span></h6>
+                <ul id="studentList" class="list-group" style="display: none; max-height: 200px; overflow-y: auto;">
+                  {% for student in students %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center" id="student-{{ student.id }}">
+                    <div class="student-info">
+                      <img src="{{ student.profile_picture.url }}" alt="profile" class="rounded-circle" width="50" height="50">
+                      <span class="ml-3" style="color: black;">{{ student.fullname }}</span>
+                      <a href="{% url 'studentviewprofile' %}?id={{ student.id }}" class="btn btn-sm ml-2" style="background-color: orange; color: white;">View Profile</a>
+                    </div>
+                    <input type="checkbox" name="students" value="{{ student.id }}" style="width: 20px; height: 20px;">
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <button type="submit" class="btn btn-block" style="background-color: #FFA500; color: white; font-weight: bold; padding: 10px; font-size: 18px;">Create Classroom</button>
+            </form>
+          </div>
+        </div>
       </div>
-      <div class="form-group">
-        <label for="description" style="color: white;">Classroom Description</label>
-        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-      </div>
-      <div class="students_list">
-        <h6 style="color: white; font-size: 20px;" onclick="toggleStudentList()">Select Students <span style="font-size: 20px; cursor: pointer;">▼</span></h6>
-        <ul id="studentList" class="list-group" style="display: none;">
-          {% for student in students %}
-          <li class="list-group-item d-flex justify-content-between align-items-center" id="student-{{ student.id }}">
-            <div class="student-info">
-              <img src="{{ student.profile_picture.url }}" alt="profile" class="rounded-circle" width="50" height="50">
-              <span class="ml-3" style="color: black;">{{ student.fullname }}</span>
-              <a href="{% url 'studentviewprofile' %}?id={{ student.id }}" class="btn btn-orange ml-2" style="background-color: orange; color: white;">View Profile</a>
-            </div>
-            <input type="checkbox" name="students" value="{{ student.id }}" style="width: 20px; height: 20px;">
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      <br>
-      <button type="submit" class="btn" style="background-color: orange; color: white;">Create Classroom</button>
-    </form>
+    </div>
   </div>
 </section><br><br>
-
-<br><br>
-<section class="classroom_section layout_padding" style="padding: 10px;">
+<section class="classroom_section layout_padding" style="padding: 20px;">
   <div class="container">
-    <h2 style="color: white; font-size: 40px; font-weight: bold;">Your Classrooms</h2>
+    <h2 style="color: white; font-size: 40px; font-weight: bold; text-align: center; margin-bottom: 30px;">Your Classrooms</h2>
     {% if classrooms.count == 0 %}
-      <div style="color: white; text-align: center;">No classrooms yet.</div>
+      <div style="color: white; text-align: center; font-size: 18px; background-color: rgba(255,255,255,0.1); padding: 20px; border-radius: 15px;">No classrooms yet.</div>
     {% else %}
-      {% for classroom in classrooms %}
-      <div class="classroom-item list-group-item d-flex justify-content-between align-items-center" style="margin-top: 15px;" id="classroom-{{ classroom.id }}">
-        <div>
-          <h5 style="color: black;">{{ classroom.name }}</h5>
-          <p style="color: black;">{{ classroom.description }}</p>
-          <p style="color: black;">Total Students: {{ classroom.students.count }}</p>
+      <div class="row">
+        {% for classroom in classrooms %}
+        <div class="col-md-6 mb-4" id="classroom-container-{{ classroom.id }}">
+          <div class="card">
+            <div class="card-header" style="background-color: #FFA500; color: white;">
+              <h5 class="mb-0">{{ classroom.name }}</h5>
+            </div>
+            <div class="card-body">
+              <p style="color: #555;">{{ classroom.description }}</p>
+              <p style="color: #555;"><strong>Total Students:</strong> {{ classroom.students.count }}</p>
+              <button onclick="toggleEditClassroom({{ classroom.id }})" class="btn btn-sm" style="background-color: #FFA500; color: white;">
+                <i class="fa fa-pencil"></i> Edit Classroom
+              </button>
+            </div>
+            <div id="editClassroom{{ classroom.id }}" class="edit-section card-footer" style="background-color: #f8f9fa;">
+              <ul class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                {% for student in classroom.students.all %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" id="classroom-{{ classroom.id }}-student-{{ student.id }}" style="background-color: transparent; border: none;">
+                  <span style="color: #555;">{{ student.fullname }}</span>
+                  <button onclick="removeStudent({{ classroom.id }}, {{ student.id }})" class="btn btn-danger btn-sm" style="border-radius: 20px;">Remove</button>
+                </li>
+                {% endfor %}
+              </ul>
+              <button onclick="deleteClassroom({{ classroom.id }})" class="btn btn-danger mt-3" style="border-radius: 20px;">Delete Classroom</button>
+            </div>
+          </div>
         </div>
-        <div>
-          <button onclick="toggleEditClassroom({{ classroom.id }})" class="btn btn-orange" style="background-color: orange; color: white;">
-            <i class="fa fa-pencil"></i>
-          </button>
-        </div>
+        {% endfor %}
       </div>
-      <div id="editClassroom{{ classroom.id }}" class="edit-section" style="display: none; background-color: lightgrey; padding: 10px; margin-bottom: 20px; border-radius: 5px;">
-        <ul class="list-group">
-          <h6>Students:</h6>
-          {% for student in classroom.students.all %}
-          <li class="list-group-item d-flex justify-content-between align-items-center" id="classroom-{{ classroom.id }}-student-{{ student.id }}">
-            <span style="color: black;">{{ student.fullname }}</span>
-            <button onclick="removeStudent({{ classroom.id }}, {{ student.id }})" class="btn btn-danger btn-sm">Remove</button>
-          </li>
-          {% endfor %}
-        </ul>
-        <br>
-        <button onclick="deleteClassroom({{ classroom.id }})" class="btn btn-danger">Delete Classroom</button>
-      </div>
-      {% endfor %}
     {% endif %}
   </div>
 </section>
@@ -96,7 +111,7 @@ function toggleStudentList() {
 }
 function toggleEditClassroom(classroomId) {
   var editSection = document.getElementById('editClassroom' + classroomId);
-  editSection.style.display = editSection.style.display === 'none' ? 'block' : 'none';
+  editSection.classList.toggle('show');
 }
 function removeStudent(classroomId, studentId) {
   $.ajax({
@@ -120,8 +135,7 @@ function deleteClassroom(classroomId) {
     data: { 'classroom_id': classroomId, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
     success: function(response) {
       if (response.success) {
-        $("#classroom-" + classroomId).remove();
-        $("#editClassroom" + classroomId).remove();
+        $("#classroom-container-" + classroomId).remove();
       }
     },
     error: function(xhr, status, error) {

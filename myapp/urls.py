@@ -38,4 +38,5 @@ urlpatterns = [
     path('delete-booking-notification/', views.delete_booking_notification, name='delete_booking_notification'),
     path('tutor/classroom/remove_student/', views.remove_student_from_classroom, name='remove_student_from_classroom'),
     path('tutor/classroom/delete/', views.delete_classroom, name='delete_classroom'),
+    path('tutor/reporting/', views.tutorstudentreporting, name='tutorstudentreporting'),
 ]
