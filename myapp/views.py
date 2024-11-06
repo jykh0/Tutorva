@@ -29,37 +29,35 @@ def log(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
         admin = Admin.objects.filter(email=email).first()
-        if admin and admin.password == password:
-            request.session['user_id'] = admin.id
-            request.session['user_type'] = 'admin'
-            return redirect('adminhome')
+        if admin:
+            if admin.password.strip() == password.strip():
+                request.session['user_id'] = admin.id
+                request.session['user_type'] = 'admin'
+                return redirect('adminhome')
+            return render(request, 'loginpage.html', {
+                'email_value': email,
+                'password_error': 'Incorrect password for admin account.'
+            })
         user = User.objects.filter(email=email).first()
-        email_error = None
-        password_error = None
-        status_error = None
         if not user:
-            email_error = 'Email not found.'
-        elif not check_password(password, user.password):
-            password_error = 'Incorrect password.'
-        elif not user.is_active:
-            status_error = 'Your account is inactive. Please contact support.'
-        context = {
-            'email_value': email,
-        }
-        if email_error:
-            context['email_error'] = email_error
-        if password_error:
-            context['password_error'] = password_error
-        if status_error:
-            context['status_error'] = status_error
-        if email_error or password_error or status_error:
-            return render(request, 'loginpage.html', context)
+            return render(request, 'loginpage.html', {
+                'email_value': email,
+                'email_error': 'Email not found in our system.'
+            })
+        if not check_password(password, user.password):
+            return render(request, 'loginpage.html', {
+                'email_value': email,
+                'password_error': 'Incorrect password.'
+            })
+        if not user.is_active:
+            return render(request, 'loginpage.html', {
+                'email_value': email,
+                'status_error': 'Your account is inactive. Please contact support.'
+            })
         request.session['user_id'] = user.id
         request.session['user_type'] = user.user_type
-        if user.user_type == 'student':
-            return redirect('studenthome')
-        elif user.user_type == 'tutor':
-            return redirect('tutorhome')
+        if user.user_type == 'student': return redirect('studenthome')
+        elif user.user_type == 'tutor': return redirect('tutorhome')
     return render(request, 'loginpage.html')
 
 

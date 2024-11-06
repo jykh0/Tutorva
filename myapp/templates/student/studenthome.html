@@ -13,6 +13,9 @@
   <link href="{% static 'home/css/font-awesome.min.css' %}" rel="stylesheet" />
   <link href="{% static 'home/css/style.css' %}" rel="stylesheet" />
   <link href="{% static 'home/css/responsive.css' %}" rel="stylesheet" />
+  <!-- Add these in your HTML head or just before closing body tag -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
   /* CSS for dropdown on hover */
   .quote_btn-container:hover .dropdown-menu {
@@ -378,6 +381,12 @@
     document.getElementById('error-message').style.display = 'none';
     document.getElementById('enquiryMessage').value = ''; // Clear the message
   });
+
+  function openEnquiryModal(tutorId, tutorName) {
+    document.getElementById('tutorId').value = tutorId;
+    document.getElementById('tutorName').textContent = tutorName;
+    $('#enquiryModal').modal('show');
+}
 </script>
 
 </body>
