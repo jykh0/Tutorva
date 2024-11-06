@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-%_2-j$pqdki12%y3$#(fwi59nw8mmu(t4p*r&g77_sa!lvsq2&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'tutorva.urls'
@@ -75,14 +76,25 @@ WSGI_APPLICATION = 'tutorva.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'tutorva',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tutorva',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': 'tutorva_sandtwice',
+        'USER': 'tutorva_sandtwice',
+        'PASSWORD': 'e1c070a76907f6b1eb89eb2dc5cdff6d12a113ef',
+        'HOST': 'c0mo3.h.filess.io',
+        'PORT': '3307',
     }
 }
 
